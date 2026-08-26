@@ -1,0 +1,24 @@
+name: "Setup Python & uv"
+description: "Sets up Python and installs project dependencies with uv."
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install uv
+      uses: astral-sh/setup-uv@v10.0.1
+      with:
+        version: "latest-known"
+        enable-cache: true
+        cache-dependency-glob: |
+          pyproject.toml
+          uv.lock
+
+    - name: Set up Python
+      uses: actions/setup-python@v7
+      with:
+        python-version-file: ".python-version"
+
+    - name: Install Dependencies
+      shell: bash
+      run: |
+        uv sync --all-groups

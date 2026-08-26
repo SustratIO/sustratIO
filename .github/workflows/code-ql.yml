@@ -1,0 +1,29 @@
+name: CodeQL
+description: Runs code quality checks.
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  schedule:
+    - cron: "0 0 * * 1"
+
+permissions: {}
+
+jobs:
+  security-codeql:
+    runs-on: ubuntu-latest
+    # Required permissions
+    permissions:
+      security-events: write
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v4
+      with:
+        languages: python
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v4

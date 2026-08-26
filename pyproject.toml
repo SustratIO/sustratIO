@@ -1,0 +1,133 @@
+[project]
+name = "sustratio-core"
+version = "0.0.1"
+description = "SustratIO is a platform design to monitor soil quality."
+readme = "README.md"
+authors = [
+    { name = "LeCuay", email = "suso.becerra98@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi[standard]>=0.141.1",
+    "pydantic-settings>=2.15.0",
+    "uvicorn>=0.52.4",
+]
+
+[dependency-groups]
+dev = [
+    "faker>=40.38.0",
+    "ipdb>=0.13.13",
+    "ipython>=9.17.1",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "pytest-cov>=7.1.0",
+    "pytest-factoryboy>=2.8.1",
+    "pytest-mock>=3.15.1",
+    "ruff>=0.16.5",
+]
+
+auth_jwt = [
+    "pyjwt>=2.13.0",
+]
+
+postgres = [
+    "sqlalchemy[asyncio]>=2.0.0",
+    "asyncpg>=0.29.0",
+]
+
+mysql = [
+    "sqlalchemy[asyncio]>=2.0.0",
+    "aiomysql>=0.2.0",
+]
+
+rabbitmq = [
+    "aio-pika>=9.0.0",
+]
+
+# Manager
+[tool.uv]
+package = false
+
+# Format and linting
+[tool.ruff]
+# Git standard of 80 characters
+line-length = 79
+src = [
+    "src",
+]
+target-version = "py314"
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint]
+extend-select = [
+    # https://docs.astral.sh/ruff/rules/#flake8-quotes-q
+    "Q",
+    # https://docs.astral.sh/ruff/rules/#isort-i
+    "I",
+    # https://docs.astral.sh/ruff/rules/#eradicate-era
+    "ERA",
+    # https://docs.astral.sh/ruff/rules/#fastapi-fast
+    "FAST",
+]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "single"
+docstring-quotes = "double"
+
+[tool.ruff.lint.isort]
+section-order = [
+    "future",
+    "standard-library",
+    "third-party",
+    "first-party",
+    "testing",
+    "domain",
+    "application",
+    "infrastructure",
+    "local-folder",
+]
+
+[tool.ruff.lint.isort.sections]
+domain = ["domain"]
+application = ["application"]
+infrastructure = ["infrastructure"]
+testing = [
+    "tests",
+    "unittest",
+    "pytest",
+    "pytest_factoryboy",
+    "pytest_mock",
+    "faker",
+]
+
+# Pytest configruation
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = [
+    "unit: Isolated unit tests for domain models and application use cases",
+    "integration: Integration tests for API endpoints and infrastructure adapters",
+    "controller: Integration tests that correspond to Controllers logic.",
+    "use_case: Unit tests for specific Use Cases.",
+    "crop: Either unit or integration tests for Crop model.",
+    "in_memory: Tests that run with in-memory persistence implementation.",
+    "oauth0: Test that requires `auth_jwt` dependency and execute OAuth0 logic.",
+    "null_auth: Test that runs without actual auth logic.",
+]
+addopts = "--report-chars=a"
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
+omit = [
+    # Exclude app entrypoints
+    "src/infrastructure/entrypoints/api/main.py",
+    "*/__init__.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
