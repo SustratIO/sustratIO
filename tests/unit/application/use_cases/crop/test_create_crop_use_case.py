@@ -38,9 +38,10 @@ async def test_create_crop_execute_raises_permission_denied_exception(
         )
         await use_case.execute(
             name=faker.name(),
-            unique_name=None,
+            species=None,
             description=None,
             notes=None,
+            planted_at=faker.past_datetime(tzinfo=UTC),
             user=dummy_authenticated_user,
         )
 
@@ -63,9 +64,10 @@ async def test_create_crop_execute_raises_exception(
     with pytest.raises(RepositoryDataAccessException):
         await use_case.execute(
             name=faker.name(),
-            unique_name=None,
+            species=None,
             description=None,
             notes=None,
+            planted_at=faker.past_datetime(tzinfo=UTC),
             user=authenticated_user,
         )
 
@@ -73,18 +75,20 @@ async def test_create_crop_execute_raises_exception(
 @pytest.mark.asyncio
 async def test_create_crop_execute_all_fields_ok(
     authenticated_user: AuthenticatedUser,
+    faker: Faker,
     in_memory_crop_repo,
 ):
     use_case = CreateCropUseCase(repo=in_memory_crop_repo)
 
     data = {
         'name': 'Basil',
-        'unique_name': 'Ocimum basilicum',
+        'species': 'Ocimum basilicum',
         'description': (
             'Basil (Ocimum basilicum), also called great basil, is'
             ' a culinary herb of the family Lamiaceae (mints).'
         ),
         'notes': 'Needs water.',
+        'planted_at': faker.past_datetime(tzinfo=UTC),
     }
 
     crop = await use_case.execute(
@@ -93,7 +97,7 @@ async def test_create_crop_execute_all_fields_ok(
     )
 
     assert crop.name == data['name']
-    assert crop.unique_name == data['unique_name']
+    assert crop.species == data['species']
     assert crop.description == data['description']
     assert crop.notes == data['notes']
     assert crop.owner_id == authenticated_user.id
@@ -104,24 +108,26 @@ async def test_create_crop_execute_all_fields_ok(
 @pytest.mark.asyncio
 async def test_create_crop_execute_required_fields_only_ok(
     authenticated_user: AuthenticatedUser,
+    faker: Faker,
     in_memory_crop_repo,
 ):
     use_case = CreateCropUseCase(repo=in_memory_crop_repo)
 
     data = {
         'name': 'Basil',
+        'planted_at': faker.past_datetime(tzinfo=UTC),
     }
 
     crop = await use_case.execute(
         **data,
-        unique_name=None,
+        species=None,
         description=None,
         notes=None,
         user=authenticated_user,
     )
 
     assert crop.name == data['name']
-    assert crop.unique_name is None
+    assert crop.species is None
     assert crop.description is None
     assert crop.notes is None
     assert crop.owner_id == authenticated_user.id

@@ -70,7 +70,7 @@ async def test_get_crop_by_id_not_found(
 ):
     repo = InMemoryCropRepository()
 
-    crop = await repo.get_by_id(
+    crop = await repo.find_one(
         identifier=faker.uuid4(cast_to=None),
     )
 
@@ -85,7 +85,7 @@ async def test_get_crop_by_id_success(
 
     await repo.save(crop=crop)
 
-    found_crop = await repo.get_by_id(
+    found_crop = await repo.find_one(
         identifier=crop.id,
     )
 

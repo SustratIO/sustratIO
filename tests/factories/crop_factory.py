@@ -1,4 +1,4 @@
-import uuid
+import datetime
 
 import factory
 
@@ -10,7 +10,7 @@ class CropFactory(factory.base.Factory):
         model = Crop
 
     name = factory.faker.Faker('name')
-    unique_name = factory.declarations.Maybe(
+    species = factory.declarations.Maybe(
         decider=factory.faker.Faker('boolean'),
         yes_declaration=factory.faker.Faker('name'),  # pyright: ignore[reportArgumentType]
         no_declaration=None,  # pyright: ignore[reportArgumentType]
@@ -25,4 +25,5 @@ class CropFactory(factory.base.Factory):
         yes_declaration=factory.faker.Faker('sentence'),  # pyright: ignore[reportArgumentType]
         no_declaration=None,  # pyright: ignore[reportArgumentType]
     )
-    owner_id = factory.declarations.LazyFunction(uuid.uuid4)
+    planted_at = factory.faker.Faker('past_datetime', tzinfo=datetime.UTC)
+    owner_id = factory.faker.Faker('uuid4')

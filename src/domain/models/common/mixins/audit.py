@@ -7,6 +7,8 @@ import datetime
 import uuid
 from dataclasses import dataclass, field
 
+from domain.exceptions.validation import ValidationError
+
 
 @dataclass(kw_only=True)
 class UniqueIdentifier:
@@ -28,7 +30,7 @@ class AuditTimestampMixin:
     :param created_at: Timestamp at which the entry was created.
     :type created_at: :class:`datetime.datetime`
     :param updated_at: Timestamp at which the entry was last updated.
-    :type created_at: :class:`datetime.datetime`
+    :type updated_at: :class:`datetime.datetime`
     """
 
     created_at: datetime.datetime = field(
@@ -37,3 +39,10 @@ class AuditTimestampMixin:
         ),
     )
     updated_at: datetime.datetime | None = None
+
+    def __post_init__(self):
+        if self.updated_at and self.updated_at < self.created_at:
+            raise ValidationError(
+                "Invalid 'updated_at' set before 'created_at' "
+                f'({self.updated_at} > {self.created_at})'
+            )

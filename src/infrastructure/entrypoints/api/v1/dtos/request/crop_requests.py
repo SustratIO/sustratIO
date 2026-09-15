@@ -1,3 +1,5 @@
+import datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -7,12 +9,12 @@ class CreateCropRequest(BaseModel):
     """
 
     name: str = Field(
-        description='The name you can identify the crop by.',
+        description='Common crop name.',
         examples=['Basil'],
     )
-    unique_name: str | None = Field(
+    species: str | None = Field(
         default=None,
-        description='Either scientific name or any other unique name identifier.',
+        description='Botanical species name.',
         examples=['Ocimum basilicum'],
     )
     description: str | None = Field(
@@ -26,4 +28,7 @@ class CreateCropRequest(BaseModel):
         default=None,
         description='Any additional notes you might attach to the crop.',
         examples=['Needs water.'],
+    )
+    planted_at: datetime.datetime = Field(
+        description='Timestamp when planted.',
     )

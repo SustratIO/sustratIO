@@ -1,3 +1,4 @@
+import datetime
 from typing import TYPE_CHECKING
 
 from domain.exceptions.auth import PermissionDeniedException
@@ -20,9 +21,10 @@ class CreateCropUseCase:
     async def execute(
         self,
         name: str,
-        unique_name: str | None,
+        species: str | None,
         description: str | None,
         notes: str | None,
+        planted_at: datetime.datetime,
         user: AuthenticatedUser,
     ) -> Crop:
         if Permission.WRITE_CROP not in user.permissions:
@@ -32,9 +34,10 @@ class CreateCropUseCase:
 
         new_crop = Crop(
             name=name,
-            unique_name=unique_name,
+            species=species,
             description=description,
             notes=notes,
+            planted_at=planted_at,
             owner_id=user.id,
         )
         crop = await self.repo.save(crop=new_crop)

@@ -24,7 +24,7 @@ class GetCropUseCase:
         identifier: uuid.UUID,
         user: AuthenticatedUser,
     ) -> Crop:
-        crop = await self.repo.get_by_id(identifier=identifier)
+        crop = await self.repo.find_one(identifier=identifier)
 
         if not crop:
             raise EntityNotFoundException('Crop not found.')
