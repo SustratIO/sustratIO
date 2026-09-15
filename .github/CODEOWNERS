@@ -1,0 +1,35 @@
+# ==============================================================================
+# DEFAULT OWNERS
+# ==============================================================================
+# The default owner is assigned to everything in the repository unless a more
+# specific path match is defined below.
+*                             @SustratIO/core-team
+
+# ==============================================================================
+# DEVOPS, CI/CD & REPOSITORY CONFIGURATION
+# ==============================================================================
+# GitHub Actions workflows and custom actions
+/.github/                     @SustratIO/core-team
+
+# Core configuration and package management files
+/pyproject.toml               @SustratIO/core-team
+/uv.lock                      @SustratIO/core-team
+/.python-version              @SustratIO/core-team
+
+# ==============================================================================
+# HEXAGONAL ARCHITECTURE LAYERS (src/)
+# ==============================================================================
+# Domain Layer (Pure models, value objects, exceptions, and repository ports)
+/src/domain/                  @SustratIO/core-team
+
+# Application Layer (Use cases and business orchestrators)
+/src/application/             @SustratIO/core-team
+
+# Infrastructure Layer (FastAPI controllers, persistence adapters, and Auth)
+/src/infrastructure/          @SustratIO/core-team
+
+# ==============================================================================
+# TEST SUITE
+# ==============================================================================
+# Unit and Integration tests
+/tests/                       @SustratIO/core-team
