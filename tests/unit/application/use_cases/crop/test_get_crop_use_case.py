@@ -44,7 +44,7 @@ async def test_get_crop_execute_raises_permission_denied_exception(
     crop: Crop,
     authenticated_user_factory: type[AuthenticatedUserFactory],
 ):
-    in_memory_crop_repo.get_by_id = mock.AsyncMock(return_value=crop)
+    in_memory_crop_repo.find_one = mock.AsyncMock(return_value=crop)
     use_case = GetCropUseCase(repo=in_memory_crop_repo)
     authenticated_user = authenticated_user_factory(permissions=set())
 
@@ -67,7 +67,7 @@ async def test_get_crop_execute_ok(
     authenticated_user: AuthenticatedUser,
 ):
     crop = crop_factory(owner_id=authenticated_user.id)
-    in_memory_crop_repo.get_by_id = mock.AsyncMock(return_value=crop)
+    in_memory_crop_repo.find_one = mock.AsyncMock(return_value=crop)
     use_case = GetCropUseCase(repo=in_memory_crop_repo)
 
     crop = await use_case.execute(

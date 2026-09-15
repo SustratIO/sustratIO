@@ -1,9 +1,14 @@
+"""
+Embodies the ports to interact with the crops entities storage.
+"""
+
 from typing import TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
     import uuid
 
-    from domain.models.crop import Crop
+    from domain.models.crop import Crop, CropSearchCriteria
+    from domain.models.pagination import CursorPage
 
 
 class CropRepositoryPort(Protocol):
@@ -13,9 +18,9 @@ class CropRepositoryPort(Protocol):
 
     async def save(self, crop: Crop) -> Crop:
         """
-        Persists the given :class:`Crop` object in the database.
+        Persists or updates the given :class:`Crop` object in the database.
 
-        :param crop: The crop object to store.
+        :param crop: The crop object to store or update.
         :type crop: :class:`Crop`
         :return: The persisted crop object (with the relevant permuted data if
                  any)
@@ -23,7 +28,7 @@ class CropRepositoryPort(Protocol):
         """
         ...
 
-    async def get_by_id(self, identifier: uuid.UUID) -> Crop | None:
+    async def find_one(self, identifier: uuid.UUID) -> Crop | None:
         """
         Given a unique identifier, returns the associated crop.
 
@@ -31,5 +36,16 @@ class CropRepositoryPort(Protocol):
         :type identifier: :class:`uuid.UUID`
         :return: Crop object if found, None otherwise.
         :rtype: :class:`Crop` | None
+        """
+        ...
+
+    async def find_many(self, filters: CropSearchCriteria) -> CursorPage[Crop]:
+        """
+        Given the filters, returns a paginated list of crops.
+
+        :param filters: Criteria to filter by.
+        :type filters: :class:`CropSearchCriteria`
+        :return: List of crops under cursor pagination.
+        :rtype: :class:`CursorPage`
         """
         ...

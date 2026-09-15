@@ -4,10 +4,6 @@ Authentication and authorization data modeling.
 
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import uuid
 
 
 class Permission(StrEnum):
@@ -36,13 +32,13 @@ class AuthenticatedUser:
     Represents a user within the app with a set of permissions.
 
     :param id: Unique identifier for the user.
-    :type id: :class:`uuid.UUID`
+    :type id: str
     :param email: The email associated to the user.
     :type email: str
     :param role: The role for the user.
     :type role: str
     """
 
-    id: uuid.UUID
+    id: str
     email: str
     permissions: set[Permission]

@@ -1,3 +1,5 @@
+import datetime
+
 from pydantic import BaseModel, Field
 
 from infrastructure.entrypoints.api.v1.dtos.common.mixins.audit import (
@@ -12,13 +14,11 @@ class SingleCropResponse(BaseModel, UniqueIdentifier, AuditTimestampMixin):
     """
 
     name: str = Field(
-        description='The name you can identify the crop by.',
+        description='Common crop name.',
         examples=['Basil'],
     )
-    unique_name: str | None = Field(
-        description=(
-            'Either scientific name or any other unique name identifier.'
-        ),
+    species: str | None = Field(
+        description=('Botanical species name.'),
         examples=['Ocimum basilicum'],
     )
     description: str | None = Field(
@@ -30,4 +30,7 @@ class SingleCropResponse(BaseModel, UniqueIdentifier, AuditTimestampMixin):
     notes: str | None = Field(
         description='Any additional notes you might attach to the crop.',
         examples=['Needs water.'],
+    )
+    planted_at: datetime.datetime = Field(
+        description='Timestamp when planted.',
     )

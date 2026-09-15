@@ -2,8 +2,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from domain.exceptions.auth import JWTAuthenticationError
 from domain.models.auth import Permission
-from domain.ports.auth.exceptions import JWTAuthenticationError
 
 from infrastructure.adapters.auth.jwt_asymmetric import (
     Auth0RS256TokenVerifier,

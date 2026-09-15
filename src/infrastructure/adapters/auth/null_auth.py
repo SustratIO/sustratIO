@@ -2,7 +2,7 @@ import logging
 import uuid
 
 from domain.models.auth import AuthenticatedUser, Permission
-from domain.ports.auth.auth_port import TokenVerifierPort
+from domain.ports.auth.token_auth_port import TokenVerifierPort
 
 logger = logging.getLogger(__name__)
 

@@ -28,5 +28,5 @@ class InMemoryCropRepository(CropRepositoryPort):
         self._storage[crop.id] = crop
         return self._storage[crop.id]
 
-    async def get_by_id(self, identifier: uuid.UUID) -> Crop | None:
+    async def find_one(self, identifier: uuid.UUID) -> Crop | None:
         return self._storage.get(identifier, None)

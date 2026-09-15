@@ -3,8 +3,8 @@ The models contained here hold and perform transformations on data regarding
 common and specific crops.
 """
 
+import datetime
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
 
 from domain.exceptions.validation import StringTooLongError
 from domain.models.common.mixins.audit import (
@@ -12,42 +12,49 @@ from domain.models.common.mixins.audit import (
     UniqueIdentifier,
 )
 
-if TYPE_CHECKING:
-    import uuid
-
 
 @dataclass(kw_only=True)
 class Crop(UniqueIdentifier, AuditTimestampMixin):
     """
-    :param name: Name of the crop.
+    :param name: Common crop name.
     :type name: str
-    :param unique_name: Scientific name or any other unique name identifier.
-    :type unique_name: str | None
+    :param species: Botanical species name.
+    :type species: str | None
     :param description: Description of the crop.
     :type description: str | None
     :param notes: Notes associated to this crop.
     :type notes: str | None
-    :param owner: The :class:`User` this crops belongs to.
-    :type owner: :class:`User`
+    :param planted_at: Timestamp when planted.
+    :type planted_at: :class:`datetime.datetime`
+    :param owner: The user this crops belongs to.
+    :type owner: str
     """
 
     name: str
-    unique_name: str | None = None
+    species: str | None = None
     description: str | None = None
     notes: str | None = None
-    owner_id: uuid.UUID
+    planted_at: datetime.datetime
+    owner_id: str
 
     def __post_init__(self):
-        if len(self.name) > 255:
+        if len(self.name) > 50:
             raise StringTooLongError(
                 field_name='name',
-                max_length=255,
+                max_length=50,
                 current_length=len(self.name),
             )
 
-        if self.unique_name and len(self.unique_name) > 255:
-            raise StringTooLongError(
-                field_name='unique_name',
-                max_length=255,
-                current_length=len(self.unique_name),
-            )
+
+@dataclass(kw_only=True)
+class CropSearchCriteria:
+    """
+    Filter parameters for querying :class:`Crop` entities.
+    """
+
+    name: str | None = None
+    species: str | None = None
+    description: str | None = None
+    notes: str | None = None
+    planted_at: datetime.datetime | None = None
+    owner_id: str | None = None

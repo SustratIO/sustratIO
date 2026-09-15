@@ -9,6 +9,16 @@ class ValidationError(DomainException):
     """Data validation exceptions."""
 
 
+class InvalidCursorData(ValidationError):
+    """Raised when a cursor cannot be decoded or has an invalid format."""
+
+    def __init__(
+        self,
+        message: str = 'The provided cursor is invalid or malformed.',
+    ):
+        super().__init__(message)
+
+
 class StringTooLongError(ValidationError):
     """Raised when a string field exceeds maximum length constraints."""
 

@@ -1,3 +1,4 @@
+import datetime
 from typing import TYPE_CHECKING
 
 from fastapi import status
@@ -23,7 +24,7 @@ async def test_create_crop_miss_required_fields_ko(
     faker: Faker,
 ):
     data = {  # Everything but required fields
-        'unique_name': 'Ocimum basilicum',
+        'species': 'Ocimum basilicum',
         'description': (
             'Basil (Ocimum basilicum), also called great basil, is a culinary '
             'herb...'
@@ -63,6 +64,7 @@ async def test_create_crop_without_permission_ko(
 
     data = {
         'name': 'Basil',
+        'planted_at': faker.past_datetime(tzinfo=datetime.UTC).isoformat(),
     }
 
     response = offline_client.post(
@@ -83,6 +85,7 @@ async def test_create_crop_only_required_fields_ok(
 ):
     data = {
         'name': 'Basil',
+        'planted_at': faker.past_datetime(tzinfo=datetime.UTC).isoformat(),
     }
 
     response = offline_client.post(
@@ -103,12 +106,13 @@ async def test_create_crop_all_required_fields_ok(
 ):
     data = {
         'name': 'Basil',
-        'unique_name': 'Ocimum basilicum',
+        'species': 'Ocimum basilicum',
         'description': (
             'Basil (Ocimum basilicum), also called great basil, is a culinary '
             'herb...'
         ),
         'notes': 'Needs water',
+        'planted_at': faker.past_datetime(tzinfo=datetime.UTC).isoformat(),
     }
 
     response = offline_client.post(
@@ -158,6 +162,7 @@ async def test_get_crop_by_id_without_permission_ko(
 
     data = {
         'name': 'Basil',
+        'planted_at': faker.past_datetime(tzinfo=datetime.UTC).isoformat(),
     }
 
     create_response = offline_client.post(
@@ -185,6 +190,7 @@ async def test_get_crop_by_id_ok(
 ):
     data = {
         'name': 'Basil',
+        'planted_at': faker.past_datetime(tzinfo=datetime.UTC).isoformat(),
     }
 
     create_response = offline_client.post(

@@ -41,18 +41,20 @@ async def create_crop(
 
     crop = await use_case.execute(
         name=data.name,
-        unique_name=data.unique_name,
+        species=data.species,
         description=data.description,
         notes=data.notes,
+        planted_at=data.planted_at,
         user=user,
     )
 
     return SingleCropResponse(
         id=crop.id,
         name=crop.name,
-        unique_name=crop.unique_name,
+        species=crop.species,
         description=crop.description,
         notes=crop.notes,
+        planted_at=crop.planted_at,
         created_at=crop.created_at,
         updated_at=crop.updated_at,
     )
@@ -78,9 +80,10 @@ async def get_crop_by_id(
     return SingleCropResponse(
         id=crop.id,
         name=crop.name,
-        unique_name=crop.unique_name,
+        species=crop.species,
         description=crop.description,
         notes=crop.notes,
+        planted_at=crop.planted_at,
         created_at=crop.created_at,
         updated_at=crop.updated_at,
     )

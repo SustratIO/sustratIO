@@ -13,7 +13,7 @@ from application.use_cases.crop.get_crop_use_case import GetCropUseCase
 from infrastructure.config import settings
 
 if TYPE_CHECKING:
-    from domain.ports.auth.auth_port import TokenVerifierPort
+    from domain.ports.auth.token_auth_port import TokenVerifierPort
 
 
 logger = logging.getLogger(__name__)
