@@ -34,6 +34,17 @@ def create_app() -> FastAPI:
         openapi_tags=tags,
     )
 
+    # Middlewares
+    from fastapi.middleware.cors import CORSMiddleware
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origins,
+        allow_credentials=True,
+        allow_methods=['GET', 'POST', 'PUT'],
+        allow_headers=['Content-Type', 'Authorization'],
+    )
+
     # Version routers
     from infrastructure.entrypoints.api.v1.router import router_v1
 

@@ -56,6 +56,7 @@ class Settings(BaseSettings):
 
     log_level: str = 'INFO'
     environment: str = 'development'
+    cors_origins: list[str] = ['*']
 
     # Uvicorn configs
     uvicorn: UvicornSettings = Field(default_factory=UvicornSettings)
