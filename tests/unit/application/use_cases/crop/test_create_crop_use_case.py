@@ -6,6 +6,8 @@ import pytest
 from application.use_cases.crop.create_crop_use_case import CreateCropUseCase
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from faker import Faker
     from tests.factories.auth_factory import AuthenticatedUserFactory
 
@@ -19,24 +21,32 @@ pytestmark = [
 ]
 
 
+@pytest.fixture
+def in_memory_repo_use_case(
+    in_memory_crop_repo,
+) -> Generator[CreateCropUseCase]:
+    use_case = CreateCropUseCase(repo=in_memory_crop_repo)
+
+    yield use_case
+
+
 @pytest.mark.asyncio
 async def test_create_crop_execute_raises_permission_denied_exception(
     faker: Faker,
     authenticated_user_factory: type[AuthenticatedUserFactory],
-    in_memory_crop_repo,
+    in_memory_repo_use_case,
 ):
-    use_case = CreateCropUseCase(repo=in_memory_crop_repo)
-
     from domain.exceptions.auth import PermissionDeniedException
+
+    dummy_authenticated_user = authenticated_user_factory.create(
+        permissions=set(),
+    )
 
     with pytest.raises(
         PermissionDeniedException,
         match="User doesn't have write permissions for crops.",
     ):
-        dummy_authenticated_user = authenticated_user_factory(
-            permissions=set(),
-        )
-        await use_case.execute(
+        await in_memory_repo_use_case.execute(
             name=faker.name(),
             species=None,
             description=None,
@@ -51,6 +61,7 @@ async def test_create_crop_execute_raises_exception(
     faker: Faker,
     authenticated_user: AuthenticatedUser,
     in_memory_crop_repo,
+    in_memory_repo_use_case,
 ):
     from unittest import mock
 
@@ -59,10 +70,9 @@ async def test_create_crop_execute_raises_exception(
     in_memory_crop_repo.save = mock.MagicMock(
         side_effect=RepositoryDataAccessException
     )
-    use_case = CreateCropUseCase(repo=in_memory_crop_repo)
 
     with pytest.raises(RepositoryDataAccessException):
-        await use_case.execute(
+        await in_memory_repo_use_case.execute(
             name=faker.name(),
             species=None,
             description=None,
@@ -76,9 +86,8 @@ async def test_create_crop_execute_raises_exception(
 async def test_create_crop_execute_all_fields_ok(
     authenticated_user: AuthenticatedUser,
     faker: Faker,
-    in_memory_crop_repo,
+    in_memory_repo_use_case,
 ):
-    use_case = CreateCropUseCase(repo=in_memory_crop_repo)
 
     data = {
         'name': 'Basil',
@@ -91,7 +100,7 @@ async def test_create_crop_execute_all_fields_ok(
         'planted_at': faker.past_datetime(tzinfo=UTC),
     }
 
-    crop = await use_case.execute(
+    crop = await in_memory_repo_use_case.execute(
         **data,
         user=authenticated_user,
     )
@@ -109,16 +118,14 @@ async def test_create_crop_execute_all_fields_ok(
 async def test_create_crop_execute_required_fields_only_ok(
     authenticated_user: AuthenticatedUser,
     faker: Faker,
-    in_memory_crop_repo,
+    in_memory_repo_use_case,
 ):
-    use_case = CreateCropUseCase(repo=in_memory_crop_repo)
-
     data = {
         'name': 'Basil',
         'planted_at': faker.past_datetime(tzinfo=UTC),
     }
 
-    crop = await use_case.execute(
+    crop = await in_memory_repo_use_case.execute(
         **data,
         species=None,
         description=None,

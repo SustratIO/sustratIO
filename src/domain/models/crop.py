@@ -26,8 +26,8 @@ class Crop(UniqueIdentifier, AuditTimestampMixin):
     :type notes: str | None
     :param planted_at: Timestamp when planted.
     :type planted_at: :class:`datetime.datetime`
-    :param owner: The user this crops belongs to.
-    :type owner: str
+    :param owner_id: The user this crops belongs to.
+    :type owner_id: str
     """
 
     name: str
@@ -50,6 +50,19 @@ class Crop(UniqueIdentifier, AuditTimestampMixin):
 class CropSearchCriteria:
     """
     Filter parameters for querying :class:`Crop` entities.
+
+    :param name: Common crop name.
+    :type name: str | None
+    :param species: Botanical species name.
+    :type species: str | None
+    :param description: Description of the crop.
+    :type description: str | None
+    :param notes: Notes associated to this crop.
+    :type notes: str | None
+    :param planted_at: Timestamp when planted.
+    :type planted_at: :class:`datetime.datetime` | None
+    :param owner_id: The user this crops belongs to.
+    :type owner_id: str | None
     """
 
     name: str | None = None

@@ -16,7 +16,10 @@ class CropRepositoryPort(Protocol):
     Defines domain logic for interacting with the crop entity.
     """
 
-    async def save(self, crop: Crop) -> Crop:
+    async def save(
+        self,
+        crop: Crop,
+    ) -> Crop:
         """
         Persists or updates the given :class:`Crop` object in the database.
 
@@ -28,7 +31,10 @@ class CropRepositoryPort(Protocol):
         """
         ...
 
-    async def find_one(self, identifier: uuid.UUID) -> Crop | None:
+    async def find_one(
+        self,
+        identifier: uuid.UUID,
+    ) -> Crop | None:
         """
         Given a unique identifier, returns the associated crop.
 
@@ -39,12 +45,18 @@ class CropRepositoryPort(Protocol):
         """
         ...
 
-    async def find_many(self, filters: CropSearchCriteria) -> CursorPage[Crop]:
+    async def find_many(
+        self,
+        filters: CropSearchCriteria,
+        limit: int = 100,
+    ) -> CursorPage[Crop]:
         """
         Given the filters, returns a paginated list of crops.
 
         :param filters: Criteria to filter by.
         :type filters: :class:`CropSearchCriteria`
+        :param limit: Number of crops to return.
+        :type limit: int
         :return: List of crops under cursor pagination.
         :rtype: :class:`CursorPage`
         """
