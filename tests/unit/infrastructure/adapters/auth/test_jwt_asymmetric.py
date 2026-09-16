@@ -42,7 +42,7 @@ async def test_verify_token_success(
     mocker: MockerFixture,
     faker: Faker,
 ):
-    user_id = faker.uuid4(cast_to=None)
+    user_id = faker.uuid4(cast_to=str)
     mock_decode = mocker.patch('jwt.decode')
     mock_decode.return_value = {
         'sub': str(user_id),
