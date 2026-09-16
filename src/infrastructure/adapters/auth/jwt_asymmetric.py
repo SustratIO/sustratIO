@@ -1,5 +1,4 @@
 import logging
-import uuid
 from collections.abc import Iterable
 
 import jwt
@@ -52,7 +51,7 @@ class Auth0RS256TokenVerifier(TokenVerifierPort):
                 raise TypeError("The property 'role' is not an iterable.")
 
             return AuthenticatedUser(
-                id=uuid.UUID(payload['sub']),
+                id=payload['sub'],
                 email=payload['email'],
                 permissions={Permission(perm) for perm in payload['role']},
             )

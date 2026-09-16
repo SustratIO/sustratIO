@@ -23,6 +23,9 @@ jobs:
 
       - name: Run Ruff Formatter
         run: uv run ruff format --check .
+      
+      - name: Pyright Checker
+        run: uv run pyright .
 
   test-unit:
     strategy:

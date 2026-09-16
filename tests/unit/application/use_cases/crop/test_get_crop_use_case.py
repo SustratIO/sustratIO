@@ -6,6 +6,8 @@ from unittest import mock
 from application.use_cases.crop.get_crop_use_case import GetCropUseCase
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+
     from faker import Faker
     from tests.factories.auth_factory import AuthenticatedUserFactory
     from tests.factories.crop_factory import CropFactory
@@ -21,18 +23,25 @@ pytestmark = [
 ]
 
 
+@pytest.fixture
+def in_memory_repo_use_case(
+    in_memory_crop_repo,
+) -> Generator[GetCropUseCase]:
+    use_case = GetCropUseCase(repo=in_memory_crop_repo)
+
+    yield use_case
+
+
 @pytest.mark.asyncio
 async def test_get_crop_execute_raises_entry_not_found_exception(
-    in_memory_crop_repo,
+    in_memory_repo_use_case,
     authenticated_user: AuthenticatedUser,
     faker: Faker,
 ):
     from domain.exceptions.repository import EntityNotFoundException
 
-    use_case = GetCropUseCase(repo=in_memory_crop_repo)
-
     with pytest.raises(EntityNotFoundException, match='Crop not found.'):
-        await use_case.execute(
+        await in_memory_repo_use_case.execute(
             faker.uuid4(cast_to=None),
             user=authenticated_user,
         )
@@ -43,10 +52,12 @@ async def test_get_crop_execute_raises_permission_denied_exception(
     in_memory_crop_repo,
     crop: Crop,
     authenticated_user_factory: type[AuthenticatedUserFactory],
+    in_memory_repo_use_case,
 ):
     in_memory_crop_repo.find_one = mock.AsyncMock(return_value=crop)
-    use_case = GetCropUseCase(repo=in_memory_crop_repo)
-    authenticated_user = authenticated_user_factory(permissions=set())
+    authenticated_user = authenticated_user_factory.create(
+        permissions=set(),
+    )
 
     from domain.exceptions.auth import PermissionDeniedException
 
@@ -54,7 +65,7 @@ async def test_get_crop_execute_raises_permission_denied_exception(
         PermissionDeniedException,
         match="User doesn't have read permissions for this crop.",
     ):
-        await use_case.execute(
+        await in_memory_repo_use_case.execute(
             identifier=crop.id,
             user=authenticated_user,
         )
@@ -62,15 +73,17 @@ async def test_get_crop_execute_raises_permission_denied_exception(
 
 @pytest.mark.asyncio
 async def test_get_crop_execute_ok(
-    in_memory_crop_repo,
     crop_factory: type[CropFactory],
     authenticated_user: AuthenticatedUser,
+    in_memory_crop_repo,
+    in_memory_repo_use_case,
 ):
-    crop = crop_factory(owner_id=authenticated_user.id)
+    crop = crop_factory.create(
+        owner_id=authenticated_user.id,
+    )
     in_memory_crop_repo.find_one = mock.AsyncMock(return_value=crop)
-    use_case = GetCropUseCase(repo=in_memory_crop_repo)
 
-    crop = await use_case.execute(
+    crop = await in_memory_repo_use_case.execute(
         identifier=crop.id,
         user=authenticated_user,
     )
