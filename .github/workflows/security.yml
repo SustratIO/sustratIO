@@ -1,0 +1,34 @@
+name: Security & Secret Scanning
+description: Security and secret leaking scans.
+
+on:
+  push:
+    branches: 
+      - master
+  pull_request:
+    branches: 
+      - master
+      - develop
+  schedule:
+    # Run weekly on Sunday at midnight to audit entire repository history
+    - cron: "0 0 * * 0"
+
+concurrency:
+  group: security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gitleaks:
+    name: Gitleaks Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          # Fetch full history so Gitleaks can analyze all commits in PRs/branches
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

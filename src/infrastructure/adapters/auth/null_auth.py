@@ -13,11 +13,11 @@ class NullAuthTokenVerifier(TokenVerifierPort):
     in development environments.
     """
 
-    identifier: uuid.UUID = uuid.uuid4()
+    identifier: str = str(uuid.uuid4())
 
     def __init__(
         self,
-        identifier: uuid.UUID | None = None,
+        identifier: str | None = None,
         email: str = 'test@sustratio.com',
         permissions: set[Permission] | None = None,
     ) -> None:

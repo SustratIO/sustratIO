@@ -48,7 +48,8 @@ def test_non_existent_crops_namespace(
         RepositoryDataAccessException,
         match=r"'crops' not in in-memory database\.",
     ):
-        InMemoryCropRepository()
+        # TODO: implement `find_many` on `InMemoryCropRepository`
+        InMemoryCropRepository()  # pyright: ignore[reportAbstractUsage]
 
 
 @pytest.mark.asyncio
@@ -56,7 +57,8 @@ async def test_save_crop_success(
     dummy_in_memory_db,
     crop: Crop,
 ):
-    repo = InMemoryCropRepository()
+    # TODO: implement `find_many` on `InMemoryCropRepository`
+    repo = InMemoryCropRepository()  # pyright: ignore[reportAbstractUsage]
 
     crop = await repo.save(crop=crop)
 
@@ -68,7 +70,8 @@ async def test_save_crop_success(
 async def test_get_crop_by_id_not_found(
     faker: Faker,
 ):
-    repo = InMemoryCropRepository()
+    # TODO: implement `find_many` on `InMemoryCropRepository`
+    repo = InMemoryCropRepository()  # pyright: ignore[reportAbstractUsage]
 
     crop = await repo.find_one(
         identifier=faker.uuid4(cast_to=None),
@@ -81,7 +84,8 @@ async def test_get_crop_by_id_not_found(
 async def test_get_crop_by_id_success(
     crop: Crop,
 ):
-    repo = InMemoryCropRepository()
+    # TODO: implement `find_many` on `InMemoryCropRepository`
+    repo = InMemoryCropRepository()  # pyright: ignore[reportAbstractUsage]
 
     await repo.save(crop=crop)
 

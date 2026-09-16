@@ -5,6 +5,17 @@ pre-commit:
     ruff-check:
       glob: "*.py"
       run: uv run ruff check {staged_files}
+
     ruff-format:
       glob: "*.py"
       run: uv run ruff format --check {staged_files}
+
+    pyright:
+      glob: "*.py"
+      run: uv run pyright {staged_files}
+
+    gitleaks:
+      # Skips execution gracefully if gitleaks is not installed on the developer's system
+      skip:
+        - run: uv run python -c "import shutil, sys; sys.exit(0 if shutil.which('gitleaks') else 1)"
+      run: gitleaks protect --staged --verbose
