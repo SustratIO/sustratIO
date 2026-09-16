@@ -9,7 +9,7 @@ class ValidationError(DomainException):
     """Data validation exceptions."""
 
 
-class InvalidCursorData(ValidationError):
+class InvalidCursorDataError(ValidationError):
     """Raised when a cursor cannot be decoded or has an invalid format."""
 
     def __init__(
@@ -27,3 +27,10 @@ class StringTooLongError(ValidationError):
             f"Field '{field_name}' exceeded maximum allowed characters "
             f'({max_length}). Current: {current_length}'
         )
+
+
+class TimestampWithoutTimezoneError(ValidationError):
+    """Raised when a timestamp is created without timezone."""
+
+    def __init__(self, field_name: str):
+        super().__init__(f"Field '{field_name}' doesn't have timezone.")

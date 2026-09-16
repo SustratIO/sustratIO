@@ -53,7 +53,7 @@ async def test_create_crop_without_permission_ko(
     from infrastructure.entrypoints.api.dependencies import get_user
 
     offline_app.dependency_overrides[get_user] = lambda: (
-        authenticated_user_factory.create(
+        authenticated_user_factory.build(
             permissions={
                 perm
                 for perm in Permission
@@ -151,7 +151,7 @@ async def test_get_crop_by_id_without_permission_ko(
     from infrastructure.entrypoints.api.dependencies import get_user
 
     offline_app.dependency_overrides[get_user] = lambda: (
-        authenticated_user_factory.create(
+        authenticated_user_factory.build(
             permissions={
                 perm
                 for perm in Permission

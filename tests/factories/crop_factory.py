@@ -9,7 +9,7 @@ class CropFactory(factory.base.Factory):
     class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]
         model = Crop
 
-    name = factory.faker.Faker('name')
+    name = factory.declarations.Sequence(lambda idx: f'Crop {idx:03d}')
     species = factory.declarations.Maybe(
         decider=factory.faker.Faker('boolean'),
         yes_declaration=factory.faker.Faker('name'),  # pyright: ignore[reportArgumentType]

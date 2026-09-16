@@ -38,7 +38,7 @@ async def test_create_crop_execute_raises_permission_denied_exception(
 ):
     from domain.exceptions.auth import PermissionDeniedException
 
-    dummy_authenticated_user = authenticated_user_factory.create(
+    dummy_authenticated_user = authenticated_user_factory.build(
         permissions=set(),
     )
 

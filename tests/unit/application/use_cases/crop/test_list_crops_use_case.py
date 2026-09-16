@@ -40,7 +40,7 @@ async def test_list_crops_use_case_execute_without_permissions_raises_permission
 ):
     from domain.exceptions.auth import PermissionDeniedException
 
-    user_without_perm = authenticated_user_factory.create(
+    user_without_perm = authenticated_user_factory.build(
         permissions=set(),
     )
 
@@ -68,13 +68,13 @@ async def test_list_crops_use_case_execute_ok(
     limit = 50
 
     data = CursorPage(
-        items=crop_factory.create_batch(
+        items=crop_factory.build_batch(
             size=faker.pyint(
                 min_value=1,
                 max_value=limit,
             ),
         ),
-        cursor=faker.pystr(),
+        next_cursor=faker.pystr(),
     )
     in_memory_crop_repo.find_many = mock.AsyncMock(return_value=data)
 

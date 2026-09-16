@@ -4,7 +4,7 @@ import json
 from dataclasses import dataclass, field
 from typing import TypedDict, TypeVar
 
-from domain.exceptions.validation import InvalidCursorData
+from domain.exceptions.validation import InvalidCursorDataError
 
 T = TypeVar('T')
 
@@ -41,7 +41,7 @@ class CursorPage[T]:
     """
 
     items: list[T] = field(default_factory=list)
-    cursor: str | None = None
+    next_cursor: str | None = None
 
     @staticmethod
     def decode_cursor(cursor: str) -> CursorData:
@@ -56,7 +56,7 @@ class CursorPage[T]:
         """
 
         try:
-            data = json.loads(base64.b64decode(cursor).decode())
+            data = json.loads(base64.b64decode(cursor).decode('utf-8'))
             timestamp = datetime.datetime.fromisoformat(data['timestamp'])
 
             return {
@@ -69,17 +69,19 @@ class CursorPage[T]:
             json.JSONDecodeError,
             UnicodeDecodeError,
         ) as exc:
-            raise InvalidCursorData(f'Invalid cursor data: {exc!s}') from exc
+            raise InvalidCursorDataError(
+                f'Invalid cursor data: {exc!s}'
+            ) from exc
 
     @staticmethod
-    def encode_cursor(cursor_data: CursorData) -> bytes:
+    def encode_cursor(cursor_data: CursorData) -> str:
         """
         Given a dictionary with cursor data it returns the encoded cursor.
 
         :param cursor_data: Identifier and timestamp for cursor generation.
         :type cursor_data: :class:`CursorData`
         :return: Encoded cursor.
-        :rtype: bytes
+        :rtype: str
         """
 
         try:
@@ -90,8 +92,8 @@ class CursorPage[T]:
                         'id': cursor_data['id'],
                         'timestamp': timestamp,
                     }
-                ).encode()
-            )
+                ).encode('utf-8')
+            ).decode('utf-8')
 
             return cursor
         except (
@@ -100,4 +102,6 @@ class CursorPage[T]:
             KeyError,
             UnicodeEncodeError,
         ) as exc:
-            raise InvalidCursorData(f'Invalid cursor data: {exc!s}') from exc
+            raise InvalidCursorDataError(
+                f'Invalid cursor data: {exc!s}'
+            ) from exc

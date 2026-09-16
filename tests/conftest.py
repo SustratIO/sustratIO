@@ -41,5 +41,4 @@ def in_memory_crop_repo() -> CropRepositoryPort:
         InMemoryCropRepository,
     )
 
-    # TODO: implement `find_many` on `InMemoryCropRepository`
-    return InMemoryCropRepository()  # pyright: ignore[reportAbstractUsage]
+    return InMemoryCropRepository()

@@ -91,8 +91,7 @@ async def get_crop_repository() -> CropRepositoryPort:
             InMemoryCropRepository,
         )
 
-        # TODO: implement `find_many` on `InMemoryCropRepository`
-        return InMemoryCropRepository()  # pyright: ignore[reportAbstractUsage]
+        return InMemoryCropRepository()
 
     raise NotImplementedError(
         f'No persistence layer adapter for {settings.DATABASE_ENGINE}'

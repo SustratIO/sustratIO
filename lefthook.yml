@@ -14,8 +14,6 @@ pre-commit:
       glob: "*.py"
       run: uv run pyright {staged_files}
 
-    gitleaks:
-      # Skips execution gracefully if gitleaks is not installed on the developer's system
-      skip:
-        - run: uv run python -c "import shutil, sys; sys.exit(0 if shutil.which('gitleaks') else 1)"
-      run: gitleaks protect --staged --verbose
+    detect-secrets:
+      glob: "*.py"
+      run: uv run detect-secrets-hook --baseline .secrets.baseline {staged_files}
