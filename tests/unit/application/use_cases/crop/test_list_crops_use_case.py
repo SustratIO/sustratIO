@@ -1,7 +1,7 @@
+import datetime
 from typing import TYPE_CHECKING
 
 import pytest
-from unittest import mock
 
 from domain.models.crop import CropSearchCriteria
 
@@ -33,7 +33,7 @@ def in_memory_repo_use_case(
 
 
 @pytest.mark.asyncio
-async def test_list_crops_use_case_execute_without_permissions_raises_permission_denied_exception(
+async def test_execute_without_permissions_raises_permission_denied_exception(
     authenticated_user_factory: type[AuthenticatedUserFactory],
     in_memory_repo_use_case,
     faker: Faker,
@@ -46,7 +46,7 @@ async def test_list_crops_use_case_execute_without_permissions_raises_permission
 
     with pytest.raises(
         PermissionDeniedException,
-        match="User doesn't have read permissions crops.",
+        match="User doesn't have read permissions on crops.",
     ):
         await in_memory_repo_use_case.execute(
             criteria=CropSearchCriteria(),
@@ -56,32 +56,92 @@ async def test_list_crops_use_case_execute_without_permissions_raises_permission
 
 
 @pytest.mark.asyncio
-async def test_list_crops_use_case_execute_ok(
+async def test_execute_required_fields_only_ok(
     crop_factory: type[CropFactory],
-    faker: Faker,
     in_memory_crop_repo,
     in_memory_repo_use_case,
     authenticated_user: AuthenticatedUser,
 ):
-    from domain.models.pagination import CursorPage
+    n_entries = 25
+    for crop in crop_factory.build_batch(
+        size=n_entries,
+        owner_id=authenticated_user.id,
+    ):
+        await in_memory_crop_repo.save(crop=crop)
 
     limit = 50
-
-    data = CursorPage(
-        items=crop_factory.build_batch(
-            size=faker.pyint(
-                min_value=1,
-                max_value=limit,
-            ),
-        ),
-        next_cursor=faker.pystr(),
-    )
-    in_memory_crop_repo.find_many = mock.AsyncMock(return_value=data)
-
-    crops = await in_memory_repo_use_case.execute(
+    paginated_crops = await in_memory_repo_use_case.execute(
         criteria=CropSearchCriteria(),
         limit=limit,
         user=authenticated_user,
     )
 
-    assert len(crops.items) <= limit
+    assert len(paginated_crops.items) == n_entries
+
+
+@pytest.mark.asyncio
+async def test_execute_all_fields_ok(
+    crop_factory: type[CropFactory],
+    in_memory_crop_repo,
+    faker: Faker,
+    in_memory_repo_use_case,
+    authenticated_user: AuthenticatedUser,
+):
+    for to_create_crop in crop_factory.build_batch(
+        size=25,
+        owner_id=authenticated_user.id,
+    ):
+        await in_memory_crop_repo.save(crop=to_create_crop)
+    planted_at = faker.date_time(tzinfo=datetime.UTC)
+    await in_memory_crop_repo.save(
+        crop=crop_factory.build(
+            name='Basil',
+            species='Ocimum basilicum',
+            description='Basil (Ocimum basilicum), also called great basil, is a culinary herb...',
+            notes='Needs water.',
+            planted_at=planted_at,
+            owner_id=authenticated_user.id,
+        )
+    )
+
+    limit = 50
+    paginated_crops = await in_memory_repo_use_case.execute(
+        criteria=CropSearchCriteria(
+            name='Basil',
+            species='basilicum',
+            description='also called great basil',
+            notes='water',
+            planted_at=planted_at - datetime.timedelta(hours=12),
+        ),
+        limit=limit,
+        user=authenticated_user,
+    )
+
+    assert len(paginated_crops.items) == 1
+
+
+@pytest.mark.asyncio
+async def test_execute_user_only_sees_owned_entries_ok(
+    crop_factory: type[CropFactory],
+    in_memory_crop_repo,
+    in_memory_repo_use_case,
+    authenticated_user: AuthenticatedUser,
+):
+    for to_create_crop in crop_factory.build_batch(
+        size=25,
+    ):
+        await in_memory_crop_repo.save(crop=to_create_crop)
+    await in_memory_crop_repo.save(
+        crop=crop_factory.build(
+            owner_id=authenticated_user.id,
+        ),
+    )
+
+    limit = 50
+    paginated_crops = await in_memory_repo_use_case.execute(
+        criteria=CropSearchCriteria(),
+        limit=limit,
+        user=authenticated_user,
+    )
+
+    assert len(paginated_crops.items) == 1

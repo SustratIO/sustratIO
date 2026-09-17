@@ -3,7 +3,11 @@ from typing import TYPE_CHECKING
 import pytest
 from unittest import mock
 
-from application.use_cases.crop.get_crop_use_case import GetCropUseCase
+from domain.exceptions.auth import PermissionDeniedException
+
+from application.use_cases.crop.get_crop_use_case import (
+    GetCropUseCase,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -33,7 +37,7 @@ def in_memory_repo_use_case(
 
 
 @pytest.mark.asyncio
-async def test_get_crop_execute_raises_entry_not_found_exception(
+async def test_execute_not_found_raises_entry_not_found_exception(
     in_memory_repo_use_case,
     authenticated_user: AuthenticatedUser,
     faker: Faker,
@@ -48,7 +52,7 @@ async def test_get_crop_execute_raises_entry_not_found_exception(
 
 
 @pytest.mark.asyncio
-async def test_get_crop_execute_raises_permission_denied_exception(
+async def test_execute_user_without_read_permission_raises_permission_denied_exception(
     in_memory_crop_repo,
     crop: Crop,
     authenticated_user_factory: type[AuthenticatedUserFactory],
@@ -58,8 +62,6 @@ async def test_get_crop_execute_raises_permission_denied_exception(
     authenticated_user = authenticated_user_factory.build(
         permissions=set(),
     )
-
-    from domain.exceptions.auth import PermissionDeniedException
 
     with pytest.raises(
         PermissionDeniedException,
@@ -72,7 +74,26 @@ async def test_get_crop_execute_raises_permission_denied_exception(
 
 
 @pytest.mark.asyncio
-async def test_get_crop_execute_ok(
+async def test_execute_user_without_ownership_raises_permission_denied_exception(
+    in_memory_crop_repo,
+    crop: Crop,
+    in_memory_repo_use_case,
+    authenticated_user: AuthenticatedUser,
+):
+    await in_memory_crop_repo.save(crop=crop)
+
+    with pytest.raises(
+        PermissionDeniedException,
+        match="User doesn't have read permissions for this crop.",
+    ):
+        await in_memory_repo_use_case.execute(
+            identifier=crop.id,
+            user=authenticated_user,
+        )
+
+
+@pytest.mark.asyncio
+async def test_execute_ok(
     crop_factory: type[CropFactory],
     authenticated_user: AuthenticatedUser,
     in_memory_crop_repo,

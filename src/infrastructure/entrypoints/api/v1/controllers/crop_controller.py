@@ -2,7 +2,9 @@ import logging
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Body, status
+from fastapi import APIRouter, Body, Path, status
+
+from application.dtos.crop_dtos import CreateCropInput
 
 from infrastructure.entrypoints.api.dependencies import (
     CreateCropUseCaseDeps,
@@ -39,12 +41,16 @@ async def create_crop(
     Creates a single crop with the given data.
     """
 
-    crop = await use_case.execute(
+    input_data = CreateCropInput(
         name=data.name,
         species=data.species,
         description=data.description,
         notes=data.notes,
         planted_at=data.planted_at,
+    )
+
+    crop = await use_case.execute(
+        input_data=input_data,
         user=user,
     )
 
@@ -67,7 +73,10 @@ async def create_crop(
     status_code=status.HTTP_200_OK,
 )
 async def get_crop_by_id(
-    identifier: uuid.UUID,
+    identifier: Annotated[
+        uuid.UUID,
+        Path(description='Unique identifier for the crop.'),
+    ],
     use_case: GetCropUseCaseDeps,
     user: GetUserDeps,
 ):
@@ -75,7 +84,10 @@ async def get_crop_by_id(
     Given an ID it returns a crop if it exists.
     """
 
-    crop = await use_case.execute(identifier=identifier, user=user)
+    crop = await use_case.execute(
+        identifier=identifier,
+        user=user,
+    )
 
     return SingleCropResponse(
         id=crop.id,

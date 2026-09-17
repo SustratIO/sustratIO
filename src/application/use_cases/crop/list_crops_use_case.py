@@ -37,7 +37,7 @@ class ListCropsUseCase:
 
         if Permission.READ_CROP not in user.permissions:
             raise PermissionDeniedException(
-                "User doesn't have read permissions crops."
+                "User doesn't have read permissions on crops."
             )
 
         # Enforce that the user can only query their own crops
