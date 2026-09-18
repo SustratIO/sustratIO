@@ -23,6 +23,7 @@ class ListCropsUseCase:
         criteria: CropSearchCriteria,
         limit: int,
         user: AuthenticatedUser,
+        cursor: str | None = None,
     ) -> CursorPage[Crop]:
         """
         Given `criteria` it returns a paginated list of items.
@@ -43,5 +44,9 @@ class ListCropsUseCase:
         # Enforce that the user can only query their own crops
         criteria.owner_id = user.id
 
-        crops = await self.repo.find_many(filters=criteria, limit=limit)
+        crops = await self.repo.find_many(
+            filters=criteria,
+            limit=limit,
+            cursor=cursor,
+        )
         return crops

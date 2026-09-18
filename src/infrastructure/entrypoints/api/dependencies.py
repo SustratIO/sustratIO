@@ -9,6 +9,7 @@ from domain.ports.repositories.crop_repository import CropRepositoryPort
 
 from application.use_cases.crop.create_crop_use_case import CreateCropUseCase
 from application.use_cases.crop.get_crop_use_case import GetCropUseCase
+from application.use_cases.crop.list_crops_use_case import ListCropsUseCase
 from application.use_cases.crop.update_crop_use_case import UpdateCropUseCase
 
 from infrastructure.config import settings
@@ -76,7 +77,10 @@ async def get_user(
         )
 
 
-GetUserDeps = Annotated[AuthenticatedUser, Depends(get_user)]
+GetUserDeps = Annotated[
+    AuthenticatedUser,
+    Depends(get_user),
+]
 
 
 async def get_crop_repository() -> CropRepositoryPort:
@@ -115,7 +119,8 @@ async def get_create_crop_use_case(repo: CropRepoDeps) -> CreateCropUseCase:
 
 
 CreateCropUseCaseDeps = Annotated[
-    CreateCropUseCase, Depends(get_create_crop_use_case)
+    CreateCropUseCase,
+    Depends(get_create_crop_use_case),
 ]
 
 
@@ -131,7 +136,10 @@ async def get_get_crop_use_case(repo: CropRepoDeps) -> GetCropUseCase:
     return use_case
 
 
-GetCropUseCaseDeps = Annotated[GetCropUseCase, Depends(get_get_crop_use_case)]
+GetCropUseCaseDeps = Annotated[
+    GetCropUseCase,
+    Depends(get_get_crop_use_case),
+]
 
 
 async def get_update_crop_use_case(repo: CropRepoDeps) -> UpdateCropUseCase:
@@ -147,5 +155,24 @@ async def get_update_crop_use_case(repo: CropRepoDeps) -> UpdateCropUseCase:
 
 
 UpdateCropUseCaseDeps = Annotated[
-    UpdateCropUseCase, Depends(get_update_crop_use_case)
+    UpdateCropUseCase,
+    Depends(get_update_crop_use_case),
+]
+
+
+async def get_list_crops_use_case(repo: CropRepoDeps) -> ListCropsUseCase:
+    """
+    Dependency injection for listing crops use case.
+
+    :return: The use case instance.
+    :rtype: :class:`ListCropsUseCase`
+    """
+
+    use_case = ListCropsUseCase(repo=repo)
+    return use_case
+
+
+ListCropsUseCaseDeps = Annotated[
+    ListCropsUseCase,
+    Depends(get_list_crops_use_case),
 ]

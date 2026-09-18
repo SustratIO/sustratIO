@@ -65,3 +65,40 @@ class UpdateCropRequest(BaseModel):
         default=None,
         description='Timestamp when planted.',
     )
+
+
+class CropSearchQueryParams(BaseModel):
+    """
+    Model for filtering a list of crops.
+    """
+
+    limit: int = Field(
+        default=100,
+        description='Number of entries to return.',
+    )
+    cursor: str | None = Field(
+        default=None,
+        description='Cursor from where to start the next set.',
+    )
+    name: str | None = Field(
+        default=None,
+        description='Common crop name. Case insensitive.',
+    )
+    species: str | None = Field(
+        default=None,
+        description='Botanical species name. Case insensitive.',
+    )
+    description: str | None = Field(
+        default=None,
+        description='Description of the crop. Case insensitive.',
+    )
+    notes: str | None = Field(
+        default=None,
+        description='Notes associated to this crop. Case insensitive.',
+    )
+    planted_at: datetime.datetime | None = Field(
+        default=None,
+        description=(
+            'Timestamp when planted. It searches within 12 hours of this.'
+        ),
+    )

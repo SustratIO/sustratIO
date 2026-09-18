@@ -25,5 +25,5 @@ class CropFactory(factory.base.Factory):
         yes_declaration=factory.faker.Faker('sentence'),  # pyright: ignore[reportArgumentType]
         no_declaration=None,  # pyright: ignore[reportArgumentType]
     )
-    planted_at = factory.faker.Faker('past_datetime', tzinfo=datetime.UTC)
+    planted_at = factory.faker.Faker('date_time', tzinfo=datetime.UTC)
     owner_id = factory.faker.Faker('uuid4')
