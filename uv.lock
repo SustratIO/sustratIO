@@ -1528,6 +1528,7 @@ auth-jwt = [
 dev = [
     { name = "detect-secrets" },
     { name = "faker" },
+    { name = "httpx" },
     { name = "ipdb" },
     { name = "ipython" },
     { name = "lefthook" },
@@ -1563,6 +1564,7 @@ auth-jwt = [{ name = "pyjwt", specifier = ">=2.13.0" }]
 dev = [
     { name = "detect-secrets", specifier = ">=1.5.0" },
     { name = "faker", specifier = ">=40.38.0" },
+    { name = "httpx", specifier = ">=0.28.1" },
     { name = "ipdb", specifier = ">=0.13.13" },
     { name = "ipython", specifier = ">=9.17.1" },
     { name = "lefthook", specifier = ">=2.1.14" },

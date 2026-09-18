@@ -35,8 +35,8 @@ class AuthenticatedUser:
     :type id: str
     :param email: The email associated to the user.
     :type email: str
-    :param role: The role for the user.
-    :type role: str
+    :param permissions: Set of permissions the user has.
+    :type permissions: set[:class:`Permission`]
     """
 
     id: str
