@@ -7,7 +7,10 @@ import datetime
 import uuid
 from dataclasses import dataclass, field
 
-from domain.exceptions.validation import ValidationError
+from domain.exceptions.validation import (
+    TimestampWithoutTimezoneError,
+    ValidationError,
+)
 
 
 @dataclass(kw_only=True)
@@ -41,6 +44,10 @@ class AuditTimestampMixin:
     updated_at: datetime.datetime | None = None
 
     def __post_init__(self):
+        if not self.created_at.tzinfo:
+            raise TimestampWithoutTimezoneError(field_name='created_at')
+        if self.updated_at and not self.updated_at.tzinfo:
+            raise TimestampWithoutTimezoneError(field_name='updated_at')
         if self.updated_at and self.updated_at < self.created_at:
             raise ValidationError(
                 "Invalid 'updated_at' set before 'created_at' "

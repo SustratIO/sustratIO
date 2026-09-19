@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from domain.exceptions.validation import InvalidCursorData
+from domain.exceptions.validation import InvalidCursorDataError
 from domain.models.pagination import CursorPage
 
 if TYPE_CHECKING:
@@ -27,28 +27,28 @@ def test_encode_and_decode_cursor_success(faker: Faker):
         }
     )
 
-    data = CursorPage.decode_cursor(cursor=cursor.decode())
+    data = CursorPage.decode_cursor(cursor=cursor)
 
     assert data['id'] == id
     assert data['timestamp'] == timestamp
 
 
 def test_decode_non_base64_cursor_raises_invalid_cursor_data(faker: Faker):
-    with pytest.raises(InvalidCursorData, match='Invalid cursor data: '):
+    with pytest.raises(InvalidCursorDataError, match='Invalid cursor data: '):
         CursorPage.decode_cursor(cursor=faker.pystr())
 
 
 def test_decode_non_json_cursor_raises_invalid_cursor_data(faker: Faker):
     cursor = base64.b64encode(faker.text().encode()).decode()
 
-    with pytest.raises(InvalidCursorData, match='Invalid cursor data: '):
+    with pytest.raises(InvalidCursorDataError, match='Invalid cursor data: '):
         CursorPage.decode_cursor(cursor=cursor)
 
 
 def test_decode_missing_json_required_properties_raises_invalid_cursor_data():
     cursor = base64.b64encode(json.dumps({}).encode()).decode()
 
-    with pytest.raises(InvalidCursorData, match='Invalid cursor data: '):
+    with pytest.raises(InvalidCursorDataError, match='Invalid cursor data: '):
         CursorPage.decode_cursor(cursor=cursor)
 
 
@@ -65,7 +65,7 @@ def test_decode_incorrect_timestamp_format_raises_invalid_cursor_data(
     }
     cursor = base64.b64encode(json.dumps(data).encode()).decode()
 
-    with pytest.raises(InvalidCursorData, match='Invalid cursor data: '):
+    with pytest.raises(InvalidCursorDataError, match='Invalid cursor data: '):
         CursorPage.decode_cursor(cursor=cursor)
 
 
@@ -77,10 +77,10 @@ def test_encode_incorrect_timestamp_format_raises_invalid_cursor_data(
         'timestamp': faker.pystr(),
     }
 
-    with pytest.raises(InvalidCursorData, match='Invalid cursor data: '):
+    with pytest.raises(InvalidCursorDataError, match='Invalid cursor data: '):
         CursorPage.encode_cursor(cursor_data=cursor_data)  # pyright: ignore[reportArgumentType]
 
 
 def test_encode_missing_json_required_properties_raises_invalid_cursor_data():
-    with pytest.raises(InvalidCursorData, match='Invalid cursor data: '):
+    with pytest.raises(InvalidCursorDataError, match='Invalid cursor data: '):
         CursorPage.encode_cursor(cursor_data={})  # pyright: ignore[reportArgumentType]

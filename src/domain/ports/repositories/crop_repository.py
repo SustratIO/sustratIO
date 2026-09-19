@@ -49,6 +49,7 @@ class CropRepositoryPort(Protocol):
         self,
         filters: CropSearchCriteria,
         limit: int = 100,
+        cursor: str | None = None,
     ) -> CursorPage[Crop]:
         """
         Given the filters, returns a paginated list of crops.

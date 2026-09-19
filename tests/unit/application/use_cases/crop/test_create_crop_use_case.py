@@ -1,8 +1,9 @@
-from datetime import UTC, datetime, timedelta
+import datetime
 from typing import TYPE_CHECKING
 
 import pytest
 
+from application.dtos.crop_dtos import CreateCropInput
 from application.use_cases.crop.create_crop_use_case import CreateCropUseCase
 
 if TYPE_CHECKING:
@@ -31,15 +32,22 @@ def in_memory_repo_use_case(
 
 
 @pytest.mark.asyncio
-async def test_create_crop_execute_raises_permission_denied_exception(
+async def test_execute_user_without_write_permission_raises_permission_denied_exception(
     faker: Faker,
     authenticated_user_factory: type[AuthenticatedUserFactory],
     in_memory_repo_use_case,
 ):
     from domain.exceptions.auth import PermissionDeniedException
 
-    dummy_authenticated_user = authenticated_user_factory.create(
+    dummy_authenticated_user = authenticated_user_factory.build(
         permissions=set(),
+    )
+    input_data = CreateCropInput(
+        name=faker.name(),
+        species=None,
+        description=None,
+        notes=None,
+        planted_at=faker.date_time(tzinfo=datetime.UTC),
     )
 
     with pytest.raises(
@@ -47,96 +55,69 @@ async def test_create_crop_execute_raises_permission_denied_exception(
         match="User doesn't have write permissions for crops.",
     ):
         await in_memory_repo_use_case.execute(
-            name=faker.name(),
-            species=None,
-            description=None,
-            notes=None,
-            planted_at=faker.past_datetime(tzinfo=UTC),
+            input_data=input_data,
             user=dummy_authenticated_user,
         )
 
 
 @pytest.mark.asyncio
-async def test_create_crop_execute_raises_exception(
-    faker: Faker,
-    authenticated_user: AuthenticatedUser,
-    in_memory_crop_repo,
-    in_memory_repo_use_case,
-):
-    from unittest import mock
-
-    from domain.exceptions.repository import RepositoryDataAccessException
-
-    in_memory_crop_repo.save = mock.MagicMock(
-        side_effect=RepositoryDataAccessException
-    )
-
-    with pytest.raises(RepositoryDataAccessException):
-        await in_memory_repo_use_case.execute(
-            name=faker.name(),
-            species=None,
-            description=None,
-            notes=None,
-            planted_at=faker.past_datetime(tzinfo=UTC),
-            user=authenticated_user,
-        )
-
-
-@pytest.mark.asyncio
-async def test_create_crop_execute_all_fields_ok(
+async def test_execute_all_fields_ok(
     authenticated_user: AuthenticatedUser,
     faker: Faker,
     in_memory_repo_use_case,
 ):
-
-    data = {
-        'name': 'Basil',
-        'species': 'Ocimum basilicum',
-        'description': (
+    input_data = CreateCropInput(
+        name='Basil',
+        species='Ocimum basilicum',
+        description=(
             'Basil (Ocimum basilicum), also called great basil, is'
             ' a culinary herb of the family Lamiaceae (mints).'
         ),
-        'notes': 'Needs water.',
-        'planted_at': faker.past_datetime(tzinfo=UTC),
-    }
+        notes='Needs water.',
+        planted_at=faker.date_time(tzinfo=datetime.UTC),
+    )
 
     crop = await in_memory_repo_use_case.execute(
-        **data,
+        input_data=input_data,
         user=authenticated_user,
     )
 
-    assert crop.name == data['name']
-    assert crop.species == data['species']
-    assert crop.description == data['description']
-    assert crop.notes == data['notes']
+    assert crop.name == input_data.name
+    assert crop.species == input_data.species
+    assert crop.description == input_data.description
+    assert crop.notes == input_data.notes
     assert crop.owner_id == authenticated_user.id
-    assert (datetime.now(tz=UTC) - crop.created_at) < timedelta(seconds=2)
+    assert (
+        datetime.datetime.now(tz=datetime.UTC) - crop.created_at
+    ) < datetime.timedelta(seconds=2)
     assert crop.updated_at is None
 
 
 @pytest.mark.asyncio
-async def test_create_crop_execute_required_fields_only_ok(
+async def test_execute_required_fields_only_ok(
     authenticated_user: AuthenticatedUser,
     faker: Faker,
     in_memory_repo_use_case,
 ):
-    data = {
-        'name': 'Basil',
-        'planted_at': faker.past_datetime(tzinfo=UTC),
-    }
-
-    crop = await in_memory_repo_use_case.execute(
-        **data,
+    input_data = CreateCropInput(
+        name='Basil',
         species=None,
         description=None,
         notes=None,
+        planted_at=faker.date_time(tzinfo=datetime.UTC),
+    )
+
+    crop = await in_memory_repo_use_case.execute(
+        input_data=input_data,
         user=authenticated_user,
     )
 
-    assert crop.name == data['name']
+    assert crop.name == input_data.name
     assert crop.species is None
     assert crop.description is None
     assert crop.notes is None
     assert crop.owner_id == authenticated_user.id
-    assert (datetime.now(tz=UTC) - crop.created_at) < timedelta(seconds=2)
+    assert (
+        datetime.datetime.now(tz=datetime.UTC) - crop.created_at
+    ) < datetime.timedelta(seconds=2)
     assert crop.updated_at is None

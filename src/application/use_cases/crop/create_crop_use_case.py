@@ -1,4 +1,3 @@
-import datetime
 from typing import TYPE_CHECKING
 
 from domain.exceptions.auth import PermissionDeniedException
@@ -9,10 +8,12 @@ if TYPE_CHECKING:
     from domain.models.auth import AuthenticatedUser
     from domain.ports.repositories.crop_repository import CropRepositoryPort
 
+    from application.dtos.crop_dtos import CreateCropInput
+
 
 class CreateCropUseCase:
     """
-    Use case for creating a crop.
+    Creates a crop with given data.
     """
 
     def __init__(self, repo: CropRepositoryPort):
@@ -20,11 +21,7 @@ class CreateCropUseCase:
 
     async def execute(
         self,
-        name: str,
-        species: str | None,
-        description: str | None,
-        notes: str | None,
-        planted_at: datetime.datetime,
+        input_data: CreateCropInput,
         user: AuthenticatedUser,
     ) -> Crop:
         if Permission.WRITE_CROP not in user.permissions:
@@ -33,11 +30,11 @@ class CreateCropUseCase:
             )
 
         new_crop = Crop(
-            name=name,
-            species=species,
-            description=description,
-            notes=notes,
-            planted_at=planted_at,
+            name=input_data.name,
+            species=input_data.species,
+            description=input_data.description,
+            notes=input_data.notes,
+            planted_at=input_data.planted_at,
             owner_id=user.id,
         )
         crop = await self.repo.save(crop=new_crop)

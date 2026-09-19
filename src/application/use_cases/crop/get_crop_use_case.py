@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 class GetCropUseCase:
     """
-    Use case for retrieving a single crop by given id.
+    Retrieves a single crop by given id.
     """
 
     def __init__(self, repo: CropRepositoryPort):
