@@ -1,4 +1,3 @@
-import datetime
 from typing import TYPE_CHECKING
 
 import pytest
@@ -7,7 +6,7 @@ from domain.models.crop import CropSearchCriteria
 
 if TYPE_CHECKING:
     from faker import Faker
-    from tests.factories.crop_factory import CropFactory
+    from tests.factories.crop_factory import CropFactory, SowingPeriodFactory
 
     from domain.models.crop import Crop
 
@@ -171,6 +170,7 @@ async def test_find_many_without_filters_cursor_success(
 async def test_find_many_with_filters_success(
     in_memory_repository,
     crop_factory: type[CropFactory],
+    sowing_period_factory: type[SowingPeriodFactory],
     faker: Faker,
 ):
     # We create random entries to ensure none of them are returned
@@ -179,21 +179,16 @@ async def test_find_many_with_filters_success(
         await in_memory_repository.save(crop=crop)
 
     owner_id = faker.uuid4(cast_to=str)
+    sowing_season_start, sowing_season_end = sowing_period_factory.build_batch(
+        size=2
+    )
     crop: Crop = crop_factory.build(
         name='Green Basil',
         species='Ocimum basilicum',
         description='Basil (Ocimum basilicum), also called great basil, is a culinary herb...',
         notes='Needs water.',
-        planted_at=datetime.datetime(
-            year=1998,
-            month=7,
-            day=14,
-            hour=8,
-            minute=32,
-            second=0,
-            microsecond=0,
-            tzinfo=datetime.UTC,
-        ),
+        sowing_season_start=sowing_season_start,
+        sowing_season_end=sowing_season_end,
         owner_id=owner_id,
     )
     await in_memory_repository.save(crop=crop)
@@ -204,14 +199,8 @@ async def test_find_many_with_filters_success(
         species='basilicum',
         description='also called great basil',
         notes='needs water',
-        planted_at=datetime.datetime(
-            year=1998,
-            month=7,
-            day=14,
-            hour=12,
-            minute=0,
-            tzinfo=datetime.UTC,
-        ),
+        sowing_season_start=sowing_season_start,
+        sowing_season_end=sowing_season_end,
         owner_id=owner_id,
     )
 

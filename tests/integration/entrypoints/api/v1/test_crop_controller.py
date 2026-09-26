@@ -1,4 +1,3 @@
-import datetime
 from typing import TYPE_CHECKING
 
 from fastapi import status
@@ -68,7 +67,6 @@ def test_create_crop_user_without_write_permission_ko(
 
     data = {
         'name': 'Basil',
-        'planted_at': faker.date_time(tzinfo=datetime.UTC).isoformat(),
     }
 
     response: httpx.Response = offline_client.post(
@@ -92,7 +90,6 @@ def test_create_crop_only_required_fields_ok(
 ):
     data = {
         'name': 'Basil',
-        'planted_at': faker.date_time(tzinfo=datetime.UTC).isoformat(),
     }
 
     response: httpx.Response = offline_client.post(
@@ -118,7 +115,6 @@ def test_create_crop_all_required_fields_ok(
             'herb...'
         ),
         'notes': 'Needs water',
-        'planted_at': faker.date_time(tzinfo=datetime.UTC).isoformat(),
     }
 
     response: httpx.Response = offline_client.post(
@@ -167,7 +163,6 @@ def test_get_crop_by_id_user_without_read_permission_ko(
 
     data = {
         'name': 'Basil',
-        'planted_at': faker.date_time(tzinfo=datetime.UTC).isoformat(),
     }
 
     create_response: httpx.Response = offline_client.post(
@@ -198,7 +193,6 @@ def test_get_crop_by_id_ok(
 ):
     data = {
         'name': 'Basil',
-        'planted_at': faker.date_time(tzinfo=datetime.UTC).isoformat(),
     }
     create_response: httpx.Response = offline_client.post(
         url='/v1/crops',
@@ -238,7 +232,6 @@ def test_update_crop_user_without_read_permission_ko(
 
     create_data = {
         'name': 'Basil',
-        'planted_at': faker.date_time(tzinfo=datetime.UTC).isoformat(),
     }
     create_response: httpx.Response = offline_client.post(
         url='/v1/crops',
@@ -279,7 +272,6 @@ def test_update_crop_user_without_write_permission_ko(
     offline_app.dependency_overrides[get_user] = lambda: authenticated_user
     create_data = {
         'name': 'Basil',
-        'planted_at': faker.date_time(tzinfo=datetime.UTC).isoformat(),
     }
     create_response: httpx.Response = offline_client.post(
         url='/v1/crops',
@@ -333,7 +325,6 @@ def test_update_crop_user_without_ownership_ko(
     )
     create_data = {
         'name': 'Basil',
-        'planted_at': faker.date_time(tzinfo=datetime.UTC).isoformat(),
     }
     create_response: httpx.Response = offline_client.post(
         url='/v1/crops',
@@ -370,10 +361,8 @@ def test_update_crop_ok(
     authenticated_user: AuthenticatedUser,
 ):
     offline_app.dependency_overrides[get_user] = lambda: authenticated_user
-    planted_at = faker.date_time(tzinfo=datetime.UTC)
     create_data = {
         'name': 'Basil',
-        'planted_at': planted_at.isoformat(),
     }
     create_response: httpx.Response = offline_client.post(
         url='/v1/crops',
@@ -397,10 +386,6 @@ def test_update_crop_ok(
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json()['name'] == data['name']
-    assert (
-        datetime.datetime.fromisoformat(response.json()['planted_at'])
-        == planted_at
-    )
 
 
 def test_list_crops_user_without_read_permissions_ko(
@@ -477,7 +462,6 @@ async def test_list_crops_with_query_params_ok(
         owner_id=authenticated_user.id,
     ):
         await in_memory_crop_repo.save(crop=crop)
-    crop_planted_at = faker.date_time(tzinfo=datetime.UTC)
     crop = crop_factory.build(
         name='Basil',
         species='Ocimum basilicum',
@@ -486,7 +470,6 @@ async def test_list_crops_with_query_params_ok(
             'herb...'
         ),
         notes='Needs water.',
-        planted_at=crop_planted_at,
         owner_id=authenticated_user.id,
     )
     await in_memory_crop_repo.save(crop=crop)
@@ -498,7 +481,6 @@ async def test_list_crops_with_query_params_ok(
             'species': 'basilicum',
             'description': 'also called great basil',
             'notes': 'water',
-            'planted_at': crop_planted_at.isoformat(),
         },
         headers={
             'Authorization': f'Bearer {faker.sha256()}',

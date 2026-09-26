@@ -38,7 +38,8 @@ class CreateCropUseCase:
             species=input_data.species,
             description=input_data.description,
             notes=input_data.notes,
-            planted_at=input_data.planted_at,
+            sowing_season_start=input_data.sowing_season_start,
+            sowing_season_end=input_data.sowing_season_end,
             owner_id=user.id,
         )
         crop = await self.repo.save(crop=new_crop)
