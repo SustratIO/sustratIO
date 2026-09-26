@@ -35,7 +35,7 @@ def test_create_crop_miss_required_fields_ko(
             'Basil (Ocimum basilicum), also called great basil, is a culinary '
             'herb...'
         ),
-        'notes': 'Needs water',
+        'notes': 'Needs plenty of water',
     }
 
     response: httpx.Response = offline_client.post(
@@ -103,7 +103,7 @@ def test_create_crop_only_required_fields_ok(
     assert response.status_code == status.HTTP_201_CREATED
 
 
-def test_create_crop_all_required_fields_ok(
+def test_create_crop_all_fields_ok(
     offline_client,
     faker: Faker,
 ):
@@ -114,7 +114,15 @@ def test_create_crop_all_required_fields_ok(
             'Basil (Ocimum basilicum), also called great basil, is a culinary '
             'herb...'
         ),
-        'notes': 'Needs water',
+        'notes': 'Needs plenty of water',
+        'sowing_season_start': {
+            'month': 3,
+            'fortnight': 1,
+        },
+        'sowing_season_end': {
+            'month': 8,
+            'fortnight': 2,
+        },
     }
 
     response: httpx.Response = offline_client.post(
@@ -193,6 +201,41 @@ def test_get_crop_by_id_ok(
 ):
     data = {
         'name': 'Basil',
+    }
+    create_response: httpx.Response = offline_client.post(
+        url='/v1/crops',
+        json=data,
+        headers={
+            'Authorization': f'Bearer {faker.sha256()}',
+        },
+    )
+    created_crop_id = create_response.json()['id']
+
+    response: httpx.Response = offline_client.get(
+        url=f'/v1/crops/{created_crop_id}',
+        headers={
+            'Authorization': f'Bearer {faker.sha256()}',
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()['id'] == created_crop_id
+
+
+def test_get_crop_by_id_with_sowing_seasons_ok(
+    offline_client,
+    faker: Faker,
+):
+    data = {
+        'name': 'Basil',
+        'sowing_season_start': {
+            'month': 3,
+            'fortnight': 1,
+        },
+        'sowing_season_end': {
+            'month': 8,
+            'fortnight': 2,
+        },
     }
     create_response: httpx.Response = offline_client.post(
         url='/v1/crops',
@@ -388,6 +431,50 @@ def test_update_crop_ok(
     assert response.json()['name'] == data['name']
 
 
+def test_update_crop_with_sowing_seasons_ok(
+    offline_app,
+    faker: Faker,
+    offline_client,
+    authenticated_user: AuthenticatedUser,
+):
+    offline_app.dependency_overrides[get_user] = lambda: authenticated_user
+    create_data = {
+        'name': 'Basil',
+    }
+    create_response: httpx.Response = offline_client.post(
+        url='/v1/crops',
+        json=create_data,
+        headers={
+            'Authorization': f'Bearer {faker.sha256()}',
+        },
+    )
+    created_crop_id = create_response.json()['id']
+
+    data = {
+        'sowing_season_start': {
+            'month': 3,
+            'fortnight': 1,
+        },
+        'sowing_season_end': {
+            'month': 8,
+            'fortnight': 2,
+        },
+    }
+    response: httpx.Response = offline_client.put(
+        url=f'/v1/crops/{created_crop_id}',
+        json=data,
+        headers={
+            'Authorization': f'Bearer {faker.sha256()}',
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert (
+        response.json()['sowing_season_start'] == data['sowing_season_start']
+    )
+    assert response.json()['sowing_season_end'] == data['sowing_season_end']
+
+
 def test_list_crops_user_without_read_permissions_ko(
     offline_app,
     authenticated_user_factory: type[AuthenticatedUserFactory],
@@ -469,7 +556,7 @@ async def test_list_crops_with_query_params_ok(
             'Basil (Ocimum basilicum), also called great basil, is a culinary '
             'herb...'
         ),
-        notes='Needs water.',
+        notes='Needs plenty of water.',
         owner_id=authenticated_user.id,
     )
     await in_memory_crop_repo.save(crop=crop)

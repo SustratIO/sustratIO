@@ -72,7 +72,7 @@ async def test_execute_all_fields_ok(
             'Basil (Ocimum basilicum), also called great basil, is'
             ' a culinary herb of the family Lamiaceae (mints).'
         ),
-        notes='Needs water.',
+        notes='Needs plenty of water.',
     )
 
     crop = await in_memory_repo_use_case.execute(

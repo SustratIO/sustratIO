@@ -96,7 +96,7 @@ async def test_execute_all_fields_ok(
             name='Basil',
             species='Ocimum basilicum',
             description='Basil (Ocimum basilicum), also called great basil, is a culinary herb...',
-            notes='Needs water.',
+            notes='Needs plenty of water.',
             owner_id=authenticated_user.id,
         )
     )

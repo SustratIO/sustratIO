@@ -4,9 +4,17 @@ from typing import Annotated
 
 from fastapi import APIRouter, Body, Path, Query, status
 
-from domain.models.crop import CropSearchCriteria
+from domain.models.crop import (
+    CropSearchCriteria,
+    Fortnight,
+    Month,
+    SowingPeriod,
+)
 
-from application.dtos.crop_dtos import CreateCropInput, UpdateCropInput
+from application.dtos.crop_dtos import (
+    CreateCropInput,
+    UpdateCropInput,
+)
 
 from infrastructure.entrypoints.api.dependencies import (
     CreateCropUseCaseDeps,
@@ -17,6 +25,7 @@ from infrastructure.entrypoints.api.dependencies import (
     RequireWriteCropsDeps,
     UpdateCropUseCaseDeps,
 )
+from infrastructure.entrypoints.api.v1.dtos.common.crop import SowingPeriodDTO
 from infrastructure.entrypoints.api.v1.dtos.request.crop_requests import (
     CreateCropRequest,
     CropSearchQueryParams,
@@ -52,11 +61,27 @@ async def create_crop(
     Creates a single crop with the given data.
     """
 
+    sowing_season_start = None
+    if data.sowing_season_start:
+        sowing_season_start = SowingPeriod(
+            month=Month(data.sowing_season_start.month),
+            fortnight=Fortnight(data.sowing_season_start.fortnight),
+        )
+
+    sowing_season_end = None
+    if data.sowing_season_end:
+        sowing_season_end = SowingPeriod(
+            month=Month(data.sowing_season_end.month),
+            fortnight=Fortnight(data.sowing_season_end.fortnight),
+        )
+
     input_data = CreateCropInput(
         name=data.name,
         species=data.species,
         description=data.description,
         notes=data.notes,
+        sowing_season_start=sowing_season_start,
+        sowing_season_end=sowing_season_end,
     )
 
     crop = await use_case.execute(
@@ -64,12 +89,28 @@ async def create_crop(
         user=user,
     )
 
+    crop_sowing_season_start: SowingPeriodDTO | None = None
+    if crop.sowing_season_start:
+        crop_sowing_season_start = SowingPeriodDTO(
+            month=crop.sowing_season_start.month,
+            fortnight=crop.sowing_season_start.fortnight,
+        )
+
+    crop_sowing_season_end: SowingPeriodDTO | None = None
+    if crop.sowing_season_end:
+        crop_sowing_season_end = SowingPeriodDTO(
+            month=crop.sowing_season_end.month,
+            fortnight=crop.sowing_season_end.fortnight,
+        )
+
     return SingleCropResponse(
         id=crop.id,
         name=crop.name,
         species=crop.species,
         description=crop.description,
         notes=crop.notes,
+        sowing_season_start=crop_sowing_season_start,
+        sowing_season_end=crop_sowing_season_end,
         created_at=crop.created_at,
         updated_at=crop.updated_at,
     )
@@ -98,12 +139,28 @@ async def get_crop_by_id(
         user=user,
     )
 
+    crop_sowing_season_start: SowingPeriodDTO | None = None
+    if crop.sowing_season_start:
+        crop_sowing_season_start = SowingPeriodDTO(
+            month=crop.sowing_season_start.month,
+            fortnight=crop.sowing_season_start.fortnight,
+        )
+
+    crop_sowing_season_end: SowingPeriodDTO | None = None
+    if crop.sowing_season_end:
+        crop_sowing_season_end = SowingPeriodDTO(
+            month=crop.sowing_season_end.month,
+            fortnight=crop.sowing_season_end.fortnight,
+        )
+
     return SingleCropResponse(
         id=crop.id,
         name=crop.name,
         species=crop.species,
         description=crop.description,
         notes=crop.notes,
+        sowing_season_start=crop_sowing_season_start,
+        sowing_season_end=crop_sowing_season_end,
         created_at=crop.created_at,
         updated_at=crop.updated_at,
     )
@@ -131,11 +188,27 @@ async def update_crop(
     Given an ID, it updates a crop with the given data in body.
     """
 
+    sowing_season_start: SowingPeriod | None = None
+    if data.sowing_season_start:
+        sowing_season_start = SowingPeriod(
+            month=Month(data.sowing_season_start.month),
+            fortnight=Fortnight(data.sowing_season_start.fortnight),
+        )
+
+    sowing_season_end: SowingPeriod | None = None
+    if data.sowing_season_end:
+        sowing_season_end = SowingPeriod(
+            month=Month(data.sowing_season_end.month),
+            fortnight=Fortnight(data.sowing_season_end.fortnight),
+        )
+
     input_data = UpdateCropInput(
         name=data.name,
         species=data.species,
         description=data.description,
         notes=data.notes,
+        sowing_season_start=sowing_season_start,
+        sowing_season_end=sowing_season_end,
     )
 
     crop = await use_case.execute(
@@ -144,12 +217,28 @@ async def update_crop(
         user=user,
     )
 
+    crop_sowing_season_start: SowingPeriodDTO | None = None
+    if crop.sowing_season_start:
+        crop_sowing_season_start = SowingPeriodDTO(
+            month=crop.sowing_season_start.month,
+            fortnight=crop.sowing_season_start.fortnight,
+        )
+
+    crop_sowing_season_end: SowingPeriodDTO | None = None
+    if crop.sowing_season_end:
+        crop_sowing_season_end = SowingPeriodDTO(
+            month=crop.sowing_season_end.month,
+            fortnight=crop.sowing_season_end.fortnight,
+        )
+
     return SingleCropResponse(
         id=crop.id,
         name=crop.name,
         species=crop.species,
         description=crop.description,
         notes=crop.notes,
+        sowing_season_start=crop_sowing_season_start,
+        sowing_season_end=crop_sowing_season_end,
         created_at=crop.created_at,
         updated_at=crop.updated_at,
     )
@@ -188,7 +277,37 @@ async def list_crops(
         cursor=query.cursor,
     )
 
+    crops_responses = []
+    for crop in paginated_crops.items:
+        crop_sowing_season_start: SowingPeriodDTO | None = None
+        if crop.sowing_season_start:
+            crop_sowing_season_start = SowingPeriodDTO(
+                month=crop.sowing_season_start.month,
+                fortnight=crop.sowing_season_start.fortnight,
+            )
+
+        crop_sowing_season_end: SowingPeriodDTO | None = None
+        if crop.sowing_season_end:
+            crop_sowing_season_end = SowingPeriodDTO(
+                month=crop.sowing_season_end.month,
+                fortnight=crop.sowing_season_end.fortnight,
+            )
+
+        crops_responses.append(
+            SingleCropResponse(
+                id=crop.id,
+                name=crop.name,
+                species=crop.species,
+                description=crop.description,
+                notes=crop.notes,
+                sowing_season_start=crop_sowing_season_start,
+                sowing_season_end=crop_sowing_season_end,
+                created_at=crop.created_at,
+                updated_at=crop.updated_at,
+            )
+        )
+
     return CursorPaginationResponse(
-        items=paginated_crops.items,
+        items=crops_responses,
         next_cursor=paginated_crops.next_cursor,
     )

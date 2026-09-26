@@ -77,7 +77,7 @@ class TestCropSearchCriteria:
             name='Basil',
             species='Ocimum basilicum',
             description='Basil (Ocimum basilicum), also called great basil, is a culinary herb...',
-            notes='Needs water.',
+            notes='Needs plenty of water.',
         )
 
         assert criteria.name == 'basil'
@@ -86,4 +86,4 @@ class TestCropSearchCriteria:
             criteria.description
             == 'basil (ocimum basilicum), also called great basil, is a culinary herb...'
         )
-        assert criteria.notes == 'needs water.'
+        assert criteria.notes == 'needs plenty of water.'
