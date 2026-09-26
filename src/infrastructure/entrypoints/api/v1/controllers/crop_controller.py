@@ -57,7 +57,6 @@ async def create_crop(
         species=data.species,
         description=data.description,
         notes=data.notes,
-        planted_at=data.planted_at,
     )
 
     crop = await use_case.execute(
@@ -71,7 +70,6 @@ async def create_crop(
         species=crop.species,
         description=crop.description,
         notes=crop.notes,
-        planted_at=crop.planted_at,
         created_at=crop.created_at,
         updated_at=crop.updated_at,
     )
@@ -106,7 +104,6 @@ async def get_crop_by_id(
         species=crop.species,
         description=crop.description,
         notes=crop.notes,
-        planted_at=crop.planted_at,
         created_at=crop.created_at,
         updated_at=crop.updated_at,
     )
@@ -139,7 +136,6 @@ async def update_crop(
         species=data.species,
         description=data.description,
         notes=data.notes,
-        planted_at=data.planted_at,
     )
 
     crop = await use_case.execute(
@@ -154,7 +150,6 @@ async def update_crop(
         species=crop.species,
         description=crop.description,
         notes=crop.notes,
-        planted_at=crop.planted_at,
         created_at=crop.created_at,
         updated_at=crop.updated_at,
     )
@@ -183,7 +178,6 @@ async def list_crops(
         species=query.species,
         description=query.description,
         notes=query.notes,
-        planted_at=query.planted_at,
         owner_id=user.id,
     )
 

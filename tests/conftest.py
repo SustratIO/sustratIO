@@ -26,9 +26,10 @@ from tests.factories.auth_factory import AuthenticatedUserFactory
 
 register(AuthenticatedUserFactory)
 
-from tests.factories.crop_factory import CropFactory
+from tests.factories.crop_factory import CropFactory, SowingPeriodFactory
 
 register(CropFactory)
+register(SowingPeriodFactory)
 
 
 @pytest.fixture

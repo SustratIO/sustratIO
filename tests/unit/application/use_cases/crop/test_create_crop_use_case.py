@@ -47,7 +47,6 @@ async def test_execute_user_without_write_permission_raises_permission_denied_ex
         species=None,
         description=None,
         notes=None,
-        planted_at=faker.date_time(tzinfo=datetime.UTC),
     )
 
     with pytest.raises(
@@ -74,7 +73,6 @@ async def test_execute_all_fields_ok(
             ' a culinary herb of the family Lamiaceae (mints).'
         ),
         notes='Needs water.',
-        planted_at=faker.date_time(tzinfo=datetime.UTC),
     )
 
     crop = await in_memory_repo_use_case.execute(
@@ -104,7 +102,6 @@ async def test_execute_required_fields_only_ok(
         species=None,
         description=None,
         notes=None,
-        planted_at=faker.date_time(tzinfo=datetime.UTC),
     )
 
     crop = await in_memory_repo_use_case.execute(

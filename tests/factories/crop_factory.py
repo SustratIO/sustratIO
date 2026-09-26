@@ -1,8 +1,14 @@
-import datetime
-
 import factory
 
-from domain.models.crop import Crop
+from domain.models.crop import Crop, Fortnight, Month, SowingPeriod
+
+
+class SowingPeriodFactory(factory.base.Factory):
+    class Meta:  # pyright: ignore[reportIncompatibleVariableOverride]
+        model = SowingPeriod
+
+    month = factory.faker.Faker('enum', enum_cls=Month)  # pyright: ignore[reportArgumentType]
+    fortnight = factory.faker.Faker('enum', enum_cls=Fortnight)  # pyright: ignore[reportArgumentType]
 
 
 class CropFactory(factory.base.Factory):
@@ -25,5 +31,14 @@ class CropFactory(factory.base.Factory):
         yes_declaration=factory.faker.Faker('sentence'),  # pyright: ignore[reportArgumentType]
         no_declaration=None,  # pyright: ignore[reportArgumentType]
     )
-    planted_at = factory.faker.Faker('date_time', tzinfo=datetime.UTC)
+    sowing_season_start = factory.declarations.Maybe(
+        decider=factory.faker.Faker('boolean'),
+        yes_declaration=factory.declarations.SubFactory(SowingPeriodFactory),  # pyright: ignore[reportArgumentType]
+        no_declaration=None,  # pyright: ignore[reportArgumentType]
+    )
+    sowing_season_end = factory.declarations.Maybe(
+        decider=factory.faker.Faker('boolean'),
+        yes_declaration=factory.declarations.SubFactory(SowingPeriodFactory),  # pyright: ignore[reportArgumentType]
+        no_declaration=None,  # pyright: ignore[reportArgumentType]
+    )
     owner_id = factory.faker.Faker('uuid4')

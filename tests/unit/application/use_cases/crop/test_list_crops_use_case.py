@@ -1,4 +1,3 @@
-import datetime
 from typing import TYPE_CHECKING
 
 import pytest
@@ -92,14 +91,12 @@ async def test_execute_all_fields_ok(
         owner_id=authenticated_user.id,
     ):
         await in_memory_crop_repo.save(crop=to_create_crop)
-    planted_at = faker.date_time(tzinfo=datetime.UTC)
     await in_memory_crop_repo.save(
         crop=crop_factory.build(
             name='Basil',
             species='Ocimum basilicum',
             description='Basil (Ocimum basilicum), also called great basil, is a culinary herb...',
             notes='Needs water.',
-            planted_at=planted_at,
             owner_id=authenticated_user.id,
         )
     )
@@ -111,7 +108,6 @@ async def test_execute_all_fields_ok(
             species='basilicum',
             description='also called great basil',
             notes='water',
-            planted_at=planted_at - datetime.timedelta(hours=12),
         ),
         limit=limit,
         user=authenticated_user,

@@ -1,5 +1,3 @@
-import datetime
-
 from pydantic import BaseModel, Field
 
 
@@ -29,9 +27,6 @@ class CreateCropRequest(BaseModel):
         description='Any additional notes you might attach to the crop.',
         examples=['Needs water.'],
     )
-    planted_at: datetime.datetime = Field(
-        description='Timestamp when planted.',
-    )
 
 
 class UpdateCropRequest(BaseModel):
@@ -60,10 +55,6 @@ class UpdateCropRequest(BaseModel):
         default=None,
         description='Any additional notes you might attach to the crop.',
         examples=['Needs water.'],
-    )
-    planted_at: datetime.datetime | None = Field(
-        default=None,
-        description='Timestamp when planted.',
     )
 
 
@@ -95,10 +86,4 @@ class CropSearchQueryParams(BaseModel):
     notes: str | None = Field(
         default=None,
         description='Notes associated to this crop. Case insensitive.',
-    )
-    planted_at: datetime.datetime | None = Field(
-        default=None,
-        description=(
-            'Timestamp when planted. It searches within 12 hours of this.'
-        ),
     )
