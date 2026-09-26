@@ -44,8 +44,8 @@ async def test_execute_not_found_raises_entry_not_found_exception(
 ):
     authenticated_user = authenticated_user_factory.build(
         permissions={
-            Permission.READ_CROP,
-            Permission.WRITE_CROP,
+            Permission.READ_CROPS,
+            Permission.WRITE_CROPS,
         },
     )
     input_data = UpdateCropInput()
@@ -68,7 +68,7 @@ async def test_execute_user_without_read_permission_raises_permission_denied_exc
 ):
     authenticated_user = authenticated_user_factory.build(
         permissions={
-            Permission.WRITE_CROP,
+            Permission.WRITE_CROPS,
         },
     )
     input_data = UpdateCropInput()
@@ -96,7 +96,7 @@ async def test_execute_without_write_permission_raises_permission_denied_excepti
 ):
     authenticated_user: AuthenticatedUser = authenticated_user_factory.build(
         permissions={
-            Permission.READ_CROP,
+            Permission.READ_CROPS,
         },
     )
     in_memory_crop_repo.find_one = mock.AsyncMock(
@@ -126,8 +126,8 @@ async def test_execute_user_without_ownership_raises_permission_denied_exception
 ):
     authenticated_user: AuthenticatedUser = authenticated_user_factory.build(
         permissions={
-            Permission.READ_CROP,
-            Permission.WRITE_CROP,
+            Permission.READ_CROPS,
+            Permission.WRITE_CROPS,
         },
     )
     in_memory_crop_repo.find_one = mock.AsyncMock(
@@ -157,8 +157,8 @@ async def test_execute_ok(
 ):
     authenticated_user: AuthenticatedUser = authenticated_user_factory.build(
         permissions={
-            Permission.READ_CROP,
-            Permission.WRITE_CROP,
+            Permission.READ_CROPS,
+            Permission.WRITE_CROPS,
         },
     )
     crop = crop_factory.build(owner_id=authenticated_user.id)

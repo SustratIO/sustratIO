@@ -11,8 +11,10 @@ from application.dtos.crop_dtos import CreateCropInput, UpdateCropInput
 from infrastructure.entrypoints.api.dependencies import (
     CreateCropUseCaseDeps,
     GetCropUseCaseDeps,
-    GetUserDeps,
     ListCropsUseCaseDeps,
+    RequireReadAndWriteCropsDeps,
+    RequireReadCropsDeps,
+    RequireWriteCropsDeps,
     UpdateCropUseCaseDeps,
 )
 from infrastructure.entrypoints.api.v1.dtos.request.crop_requests import (
@@ -44,7 +46,7 @@ async def create_crop(
         Body(description='Data for the crop creation.'),
     ],
     use_case: CreateCropUseCaseDeps,
-    user: GetUserDeps,
+    user: RequireWriteCropsDeps,
 ):
     """
     Creates a single crop with the given data.
@@ -87,7 +89,7 @@ async def get_crop_by_id(
         Path(description='Unique identifier for the crop.'),
     ],
     use_case: GetCropUseCaseDeps,
-    user: GetUserDeps,
+    user: RequireReadCropsDeps,
 ):
     """
     Given an ID it returns a crop if it exists.
@@ -126,7 +128,7 @@ async def update_crop(
         Body(description='Data for the crop update.'),
     ],
     use_case: UpdateCropUseCaseDeps,
-    user: GetUserDeps,
+    user: RequireReadAndWriteCropsDeps,
 ):
     """
     Given an ID, it updates a crop with the given data in body.
@@ -174,7 +176,7 @@ async def list_crops(
         ),
     ],
     use_case: ListCropsUseCaseDeps,
-    user: GetUserDeps,
+    user: RequireReadCropsDeps,
 ):
     criteria = CropSearchCriteria(
         name=query.name,

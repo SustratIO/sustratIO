@@ -36,7 +36,11 @@ class ListCropsUseCase:
         :rtype: :class:`CursorPage`
         """
 
-        if Permission.READ_CROP not in user.permissions:
+        can_read_crops = (
+            user.has_permission(Permission.READ_CROPS)
+        ) or user.has_permission(Permission.READ_ALL)
+
+        if not can_read_crops:
             raise PermissionDeniedException(
                 "User doesn't have read permissions on crops."
             )

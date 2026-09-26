@@ -4,6 +4,7 @@ from fastapi.security import HTTPAuthorizationCredentials
 
 import pytest
 
+from domain.models.auth import Permission
 from domain.ports.repositories.crop_repository import CropRepositoryPort
 
 from infrastructure.config import settings
@@ -13,11 +14,15 @@ from infrastructure.entrypoints.api.dependencies import (
     get_crop_repository,
     get_get_crop_use_case,
     get_user,
+    require_permissions,
 )
 
 if TYPE_CHECKING:
     from faker import Faker
     from pytest_mock import MockerFixture
+    from tests.factories.auth_factory import AuthenticatedUserFactory
+
+    from domain.models.auth import AuthenticatedUser
 
 pytestmark = [
     pytest.mark.unit,
@@ -161,3 +166,40 @@ async def test_get_get_crop_use_case_success_ok(mocker: MockerFixture):
     )
 
     assert isinstance(use_case, GetCropUseCase)
+
+
+@pytest.mark.asyncio
+async def test_require_permissions_success_ok(
+    authenticated_user: AuthenticatedUser,
+):
+    required_permissions = [Permission.READ_CROPS]
+
+    # Create a dependency function that requires the specified permissions
+    dependency_function = require_permissions(*required_permissions)
+    user = await dependency_function(authenticated_user)
+
+    assert user == authenticated_user
+
+
+@pytest.mark.asyncio
+async def test_require_permissions_raises_http_exception_403_on_insufficient_permissions(
+    authenticated_user_factory: type[AuthenticatedUserFactory],
+):
+    authenticated_user = authenticated_user_factory(
+        permissions=set(),
+    )
+    required_permissions = [Permission.WRITE_CROPS]
+
+    # Create a dependency function that requires the specified permissions
+    dependency_function = require_permissions(*required_permissions)
+
+    from fastapi import HTTPException, status
+
+    with pytest.raises(HTTPException) as exc_info:
+        await dependency_function(authenticated_user)
+
+    assert exc_info.value.status_code == status.HTTP_403_FORBIDDEN
+    assert (
+        exc_info.value.detail
+        == 'Not enough permissions to perform this action.'
+    )

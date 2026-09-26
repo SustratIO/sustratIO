@@ -31,6 +31,7 @@ dev = [
 ]
 
 auth_jwt = [
+    "cryptography>=50.0.1",
     "pyjwt>=2.13.0",
 ]
 

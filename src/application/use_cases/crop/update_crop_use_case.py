@@ -29,12 +29,33 @@ class UpdateCropUseCase:
         input_data: UpdateCropInput,
         user: AuthenticatedUser,
     ) -> Crop:
-        if Permission.READ_CROP not in user.permissions:
+        """
+        Updates the crop with the given data if found.
+
+        :param identifier: The crop identifier.
+        :type identifier: :class:`uuid.UUID`
+        :param input_data: The data to update the crop with.
+        :type input_data: :class:`UpdateCropInput`
+        :param user: The authenticated user.
+        :type user: :class:`AuthenticatedUser`
+        :return: The updated crop.
+        :rtype: :class:`Crop`
+        """
+
+        can_read_crops = (
+            user.has_permission(Permission.READ_CROPS)
+        ) or user.has_permission(Permission.READ_ALL)
+
+        if not can_read_crops:
             raise PermissionDeniedException(
                 "User doesn't have read permissions for this crop."
             )
 
-        if Permission.WRITE_CROP not in user.permissions:
+        can_write_crops = (
+            user.has_permission(Permission.WRITE_CROPS)
+        ) or user.has_permission(Permission.WRITE_ALL)
+
+        if not can_write_crops:
             raise PermissionDeniedException(
                 "User doesn't have write permissions for this crop."
             )
@@ -44,7 +65,12 @@ class UpdateCropUseCase:
         if not crop:
             raise EntityNotFoundException('Crop not found.')
 
-        if crop.owner_id != user.id:
+        can_update_crop = (
+            crop.owner_id == user.id
+            and user.has_permission(Permission.WRITE_CROPS)
+        ) or user.has_permission(Permission.WRITE_ALL)
+
+        if not can_update_crop:
             raise PermissionDeniedException(
                 "User doesn't have ownership of this crop."
             )

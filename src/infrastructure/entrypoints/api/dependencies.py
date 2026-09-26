@@ -1,10 +1,10 @@
 import logging
-from typing import TYPE_CHECKING, Annotated
+from typing import TYPE_CHECKING, Annotated, Any
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from domain.models.auth import AuthenticatedUser
+from domain.models.auth import AuthenticatedUser, Permission
 from domain.ports.repositories.crop_repository import CropRepositoryPort
 
 from application.use_cases.crop.create_crop_use_case import CreateCropUseCase
@@ -15,6 +15,8 @@ from application.use_cases.crop.update_crop_use_case import UpdateCropUseCase
 from infrastructure.config import settings
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Coroutine
+
     from domain.ports.auth.token_auth_port import TokenVerifierPort
 
 
@@ -104,6 +106,58 @@ async def get_crop_repository() -> CropRepositoryPort:
 
 
 CropRepoDeps = Annotated[CropRepositoryPort, Depends(get_crop_repository)]
+
+
+def require_permissions(
+    *permissions: Permission,
+    require_all: bool = False,
+) -> Callable[[GetUserDeps], Coroutine[Any, Any, AuthenticatedUser]]:
+    """
+    Factory returning a dependency function that verifies user permissions.
+
+    :param permissions: The permissions to check.
+    :param require_all: If True, the user must have all specified permissions.
+                        If False, the user must have at least one of the
+                        specified permissions.
+    :return: A coroutine function that checks the user's permissions and
+             returns the user if authorized.
+    :rtype: Callable[[GetUserDeps], Coroutine[Any, Any, AuthenticatedUser]]
+    """
+
+    async def _check_permissions(user: GetUserDeps) -> AuthenticatedUser:
+        check = user.has_all if require_all else user.has_any
+
+        if not check(*permissions):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail='Not enough permissions to perform this action.',
+            )
+
+        return user
+
+    return _check_permissions
+
+
+RequireReadCropsDeps = Annotated[
+    AuthenticatedUser,
+    Depends(require_permissions(Permission.READ_CROPS)),
+]
+
+RequireWriteCropsDeps = Annotated[
+    AuthenticatedUser,
+    Depends(require_permissions(Permission.WRITE_CROPS)),
+]
+
+RequireReadAndWriteCropsDeps = Annotated[
+    AuthenticatedUser,
+    Depends(
+        require_permissions(
+            Permission.READ_CROPS,
+            Permission.WRITE_CROPS,
+            require_all=True,
+        )
+    ),
+]
 
 
 async def get_create_crop_use_case(repo: CropRepoDeps) -> CreateCropUseCase:

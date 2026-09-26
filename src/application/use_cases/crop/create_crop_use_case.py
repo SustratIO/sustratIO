@@ -24,7 +24,11 @@ class CreateCropUseCase:
         input_data: CreateCropInput,
         user: AuthenticatedUser,
     ) -> Crop:
-        if Permission.WRITE_CROP not in user.permissions:
+        can_write_crops = (
+            user.has_permission(Permission.WRITE_CROPS)
+        ) or user.has_permission(Permission.WRITE_ALL)
+
+        if not can_write_crops:
             raise PermissionDeniedException(
                 "User doesn't have write permissions for crops."
             )

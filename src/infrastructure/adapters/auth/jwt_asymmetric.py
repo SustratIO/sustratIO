@@ -37,23 +37,28 @@ class Auth0RS256TokenVerifier(TokenVerifierPort):
             )
 
             # We make sure the payload has all the data we need
-            if not (
-                'sub' in payload and 'email' in payload and 'role' in payload
-            ):
-                raise JWTAuthenticationError(
-                    'Payload malformed. It does not contain the required field.',
-                )
+            for required_field in ['sub', 'email', 'permissions']:
+                if not required_field in payload:
+                    raise JWTAuthenticationError(
+                        'Payload malformed. It does not contain the required '
+                        f"field '{required_field}'.",
+                    )
 
-            # We make sure the role is an iterable of perms
-            if isinstance(payload['role'], str):
-                payload['role'] = {payload['role']}
-            if not isinstance(payload['role'], Iterable):
-                raise TypeError("The property 'role' is not an iterable.")
+            # We make sure the permissions is an iterable of perms or a single
+            # string
+            if isinstance(payload['permissions'], str):
+                payload['permissions'] = {payload['permissions']}
+            if not isinstance(payload['permissions'], Iterable):
+                raise TypeError(
+                    "The property 'permissions' is not an iterable."
+                )
 
             return AuthenticatedUser(
                 id=payload['sub'],
                 email=payload['email'],
-                permissions={Permission(perm) for perm in payload['role']},
+                permissions={
+                    Permission(perm) for perm in payload['permissions']
+                },
             )
         except (jwt.PyJWTError, TypeError, ValueError) as e:
             raise JWTAuthenticationError(

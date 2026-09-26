@@ -22,8 +22,16 @@ def offline_app(
     from infrastructure.config import settings
 
     # Ensures we use in-memory adapters for the app
-    monkeypatch.setattr(settings, 'AUTH_ENGINE', 'in_memory')
+    monkeypatch.setattr(settings, 'AUTH_ENGINE', 'null_auth')
     monkeypatch.setattr(settings, 'DATABASE_ENGINE', 'in_memory')
+
+    # Since the variable it's instantiated on runtime we need to mock it
+    from infrastructure.adapters.auth.null_auth import NullAuthTokenVerifier
+
+    monkeypatch.setattr(
+        'infrastructure.entrypoints.api.dependencies.auth_adapter',
+        NullAuthTokenVerifier(),
+    )
 
     from infrastructure.entrypoints.api.main import app
 

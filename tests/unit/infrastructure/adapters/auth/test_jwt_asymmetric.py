@@ -47,7 +47,32 @@ async def test_verify_token_success(
     mock_decode.return_value = {
         'sub': str(user_id),
         'email': 'user@example.com',
-        'role': ['read:crop', 'write:crop'],
+        # We manually add all the permissions to ensure they are properly
+        # transformed
+        'permissions': [
+            'crops:read',
+            'crops:write',
+            'crops:archive',
+            'crops:delete',
+            'plots:read',
+            'plots:write',
+            'plots:archive',
+            'plots:delete',
+            'sensors:read',
+            'sensors:write',
+            'sensors:archive',
+            'sensors:delete',
+            'devices:provision',
+            'devices:decommission',
+            'thresholds:read',
+            'thresholds:write',
+            'thresholds:archive',
+            'thresholds:delete',
+            'all:read',
+            'all:write',
+            'all:archive',
+            'all:delete',
+        ],
     }
 
     authenticated_user = await oath0_jwt_verifier.verify_token(
@@ -56,10 +81,7 @@ async def test_verify_token_success(
 
     assert authenticated_user.id == user_id
     assert authenticated_user.email == 'user@example.com'
-    assert authenticated_user.permissions == {
-        Permission.READ_CROP,
-        Permission.WRITE_CROP,
-    }
+    assert authenticated_user.permissions == {perm for perm in Permission}
 
 
 @pytest.mark.oauth0
@@ -70,7 +92,7 @@ async def test_verify_token_malformed_payload(
     faker: Faker,
 ):
     mock_decode = mocker.patch('jwt.decode')
-    # Missing 'email' and 'role'
+    # Missing 'email' and 'permissions'
     mock_decode.return_value = {
         'sub': str(faker.uuid4(cast_to=None)),
     }
@@ -81,7 +103,7 @@ async def test_verify_token_malformed_payload(
 
 @pytest.mark.oauth0
 @pytest.mark.asyncio
-async def test_verify_token_invalid_role_type_not_iterable(
+async def test_verify_token_invalid_permissions_type_not_iterable(
     oath0_jwt_verifier,
     mocker: MockerFixture,
     faker: Faker,
@@ -90,19 +112,19 @@ async def test_verify_token_invalid_role_type_not_iterable(
     mock_decode.return_value = {
         'sub': str(faker.uuid4(cast_to=None)),
         'email': 'user@example.com',
-        'role': 1,
+        'permissions': 1,
     }
 
     with pytest.raises(
         JWTAuthenticationError,
-        match="The property 'role' is not an iterable.",
+        match="The property 'permissions' is not an iterable.",
     ):
         await oath0_jwt_verifier.verify_token('dummy.jwt.token')
 
 
 @pytest.mark.oauth0
 @pytest.mark.asyncio
-async def test_verify_token_role_type_is_invalid_permission(
+async def test_verify_token_permissions_type_is_invalid_permission(
     oath0_jwt_verifier,
     mocker: MockerFixture,
     faker: Faker,
@@ -111,7 +133,7 @@ async def test_verify_token_role_type_is_invalid_permission(
     mock_decode.return_value = {
         'sub': str(faker.uuid4(cast_to=None)),
         'email': 'user@example.com',
-        'role': 'non-existent permission',
+        'permissions': 'non-existent permission',
     }
 
     with pytest.raises(

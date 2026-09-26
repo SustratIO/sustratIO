@@ -59,7 +59,9 @@ def test_create_crop_user_without_write_permission_ko(
     offline_app.dependency_overrides[get_user] = lambda: (
         authenticated_user_factory.build(
             permissions={
-                perm for perm in Permission if perm != Permission.WRITE_CROP
+                perm
+                for perm in Permission
+                if perm not in {Permission.WRITE_CROPS, Permission.WRITE_ALL}
             },
         )
     )
@@ -79,8 +81,8 @@ def test_create_crop_user_without_write_permission_ko(
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert (
-        response.json()['message']
-        == "User doesn't have write permissions for crops."
+        response.json()['detail']
+        == 'Not enough permissions to perform this action.'
     )
 
 
@@ -158,7 +160,7 @@ def test_get_crop_by_id_user_without_read_permission_ko(
             permissions={
                 perm
                 for perm in Permission
-                if perm not in {Permission.READ_CROP}
+                if perm not in {Permission.READ_CROPS, Permission.READ_ALL}
             },
         )
     )
@@ -185,8 +187,8 @@ def test_get_crop_by_id_user_without_read_permission_ko(
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert (
-        response.json()['message']
-        == "User doesn't have read permissions for this crop."
+        response.json()['detail']
+        == 'Not enough permissions to perform this action.'
     )
 
 
@@ -227,7 +229,9 @@ def test_update_crop_user_without_read_permission_ko(
     offline_app.dependency_overrides[get_user] = lambda: (
         authenticated_user_factory.build(
             permissions={
-                perm for perm in Permission if perm != Permission.READ_CROP
+                perm
+                for perm in Permission
+                if perm not in {Permission.READ_CROPS, Permission.READ_ALL}
             }
         )
     )
@@ -258,8 +262,8 @@ def test_update_crop_user_without_read_permission_ko(
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert (
-        response.json()['message']
-        == "User doesn't have read permissions for this crop."
+        response.json()['detail']
+        == 'Not enough permissions to perform this action.'
     )
 
 
@@ -291,7 +295,9 @@ def test_update_crop_user_without_write_permission_ko(
             id=authenticated_user.id,
             email=authenticated_user.email,
             permissions={
-                perm for perm in Permission if perm != Permission.WRITE_CROP
+                perm
+                for perm in Permission
+                if perm not in {Permission.WRITE_CROPS, Permission.WRITE_ALL}
             },
         )
     )
@@ -308,8 +314,8 @@ def test_update_crop_user_without_write_permission_ko(
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert (
-        response.json()['message']
-        == "User doesn't have write permissions for this crop."
+        response.json()['detail']
+        == 'Not enough permissions to perform this action.'
     )
 
 
@@ -320,8 +326,8 @@ def test_update_crop_user_without_ownership_ko(
     offline_client,
     authenticated_user: AuthenticatedUser,
 ):
-    # The user creates the crop with permissions but later on doesn't have them
-    # to update
+    # One user creates the crop and another user tries to update it without
+    # ownership
     offline_app.dependency_overrides[get_user] = lambda: (
         authenticated_user_factory.build()
     )
@@ -406,7 +412,9 @@ def test_list_crops_user_without_read_permissions_ko(
     offline_app.dependency_overrides[get_user] = lambda: (
         authenticated_user_factory.build(
             permissions={
-                perm for perm in Permission if perm != Permission.READ_CROP
+                perm
+                for perm in Permission
+                if perm not in {Permission.READ_CROPS, Permission.READ_ALL}
             }
         )
     )
@@ -420,8 +428,8 @@ def test_list_crops_user_without_read_permissions_ko(
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert (
-        response.json()['message']
-        == "User doesn't have read permissions on crops."
+        response.json()['detail']
+        == 'Not enough permissions to perform this action.'
     )
 
 

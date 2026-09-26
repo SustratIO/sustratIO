@@ -10,5 +10,14 @@ class AuthenticatedUserFactory(factory.base.Factory):
     id = factory.faker.Faker('uuid4')
     email = factory.faker.Faker('email')
     permissions = factory.declarations.LazyFunction(
-        lambda: {perm for perm in Permission},
+        lambda: {
+            perm
+            for perm in Permission
+            if perm
+            not in {
+                Permission.READ_ALL,
+                Permission.WRITE_ALL,
+                Permission.DELETE_ALL,
+            }
+        },
     )

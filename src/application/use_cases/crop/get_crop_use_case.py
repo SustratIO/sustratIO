@@ -29,10 +29,12 @@ class GetCropUseCase:
         if not crop:
             raise EntityNotFoundException('Crop not found.')
 
-        if not (
+        can_read_crop = (
             crop.owner_id == user.id
-            and Permission.READ_CROP in user.permissions
-        ):
+            and user.has_permission(Permission.READ_CROPS)
+        ) or user.has_permission(Permission.READ_ALL)
+
+        if not can_read_crop:
             raise PermissionDeniedException(
                 "User doesn't have read permissions for this crop."
             )
