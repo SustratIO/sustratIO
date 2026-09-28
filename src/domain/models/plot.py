@@ -13,7 +13,7 @@ from domain.exceptions.validation import (
 )
 from domain.models.common.mixins.audit import (
     AuditTimestampMixin,
-    UniqueIdentifier,
+    UniqueIdentifierMixin,
 )
 
 if TYPE_CHECKING:
@@ -53,7 +53,7 @@ class Coordinate:
 
 
 @dataclass(kw_only=True)
-class Plot(UniqueIdentifier, AuditTimestampMixin):
+class Plot(UniqueIdentifierMixin, AuditTimestampMixin):
     """
     Represents a plot of land.
 
@@ -74,7 +74,7 @@ class Plot(UniqueIdentifier, AuditTimestampMixin):
 
 
 @dataclass
-class PlotAssignment(UniqueIdentifier, AuditTimestampMixin):
+class PlotAssignment(UniqueIdentifierMixin, AuditTimestampMixin):
     """
     Represents the assignment of a plot to a crop.
 

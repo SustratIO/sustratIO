@@ -11,7 +11,7 @@ from domain.exceptions.validation import (
 )
 from domain.models.common.mixins.audit import (
     AuditTimestampMixin,
-    UniqueIdentifier,
+    UniqueIdentifierMixin,
 )
 
 
@@ -59,7 +59,7 @@ class SowingPeriod:
 
 
 @dataclass(kw_only=True)
-class Crop(UniqueIdentifier, AuditTimestampMixin):
+class Crop(UniqueIdentifierMixin, AuditTimestampMixin):
     """
     :param name: Common crop name.
     :type name: str
