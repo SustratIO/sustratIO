@@ -93,7 +93,7 @@ class PlotSearchCriteria:
     coordinate: Coordinate | None = None
     owner_id: str | None = None
 
-    def __pos_init__(self):
+    def __post_init__(self):
         # Criteria is fuzzy, so string are lowercase
         if self.name:
             self.name = self.name.lower()
