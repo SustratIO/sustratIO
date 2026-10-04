@@ -131,6 +131,8 @@ omit = [
     # Exclude app entrypoints
     "src/infrastructure/entrypoints/api/main.py",
     "*/__init__.py",
+    # Exclude Protocols
+    "src/domain/ports/repositories/*_repository.py",
 ]
 
 [tool.coverage.report]

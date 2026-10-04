@@ -63,6 +63,8 @@ class Plot(UniqueIdentifierMixin, AuditTimestampMixin):
     :type description: str | None
     :param coordinate: Geographical coordinate of the plot.
     :type coordinate: :class:`Coordinate` | None
+    :param plantation_id: The plantation this plot belongs to.
+    :type plantation_id: str
     :param owner_id: The user this plot belongs to.
     :type owner_id: str
     """
@@ -70,6 +72,7 @@ class Plot(UniqueIdentifierMixin, AuditTimestampMixin):
     name: str
     description: str | None = None
     coordinate: Coordinate | None = None
+    plantation_id: uuid.UUID
     owner_id: str
 
 
