@@ -4,8 +4,10 @@ description: Runs code quality checks.
 on:
   push:
     branches:
-      - main
+      - develop
   pull_request:
+    branches:
+      - develop
   schedule:
     - cron: "0 0 * * 1"
 
