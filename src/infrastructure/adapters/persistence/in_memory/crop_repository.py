@@ -41,7 +41,7 @@ class InMemoryCropRepository(CropRepositoryPort):
     async def find_one(self, identifier: uuid.UUID) -> Crop | None:
         return self._storage.get(identifier, None)
 
-    async def find_many(
+    async def find_many_cursor_paginated(
         self,
         filters: CropSearchCriteria,
         limit: int = 100,
@@ -76,13 +76,18 @@ class InMemoryCropRepository(CropRepositoryPort):
                 if crop.notes and filters.notes in crop.notes.lower()
             ]
 
-        if filters.planted_at:
-            # Fuzzy match: crop.planted_at is within 12 hours of filters.planted_at
-            margin = datetime.timedelta(hours=12)
+        if filters.sowing_season_start:
             crops = [
                 crop
                 for crop in crops
-                if abs(crop.planted_at - filters.planted_at) <= margin
+                if crop.sowing_season_start == filters.sowing_season_start
+            ]
+
+        if filters.sowing_season_end:
+            crops = [
+                crop
+                for crop in crops
+                if crop.sowing_season_end == filters.sowing_season_end
             ]
 
         if filters.owner_id:

@@ -1,4 +1,3 @@
-import datetime
 from typing import TYPE_CHECKING
 
 import pytest
@@ -7,7 +6,7 @@ from domain.models.crop import CropSearchCriteria
 
 if TYPE_CHECKING:
     from faker import Faker
-    from tests.factories.crop_factory import CropFactory
+    from tests.factories.crop_factory import CropFactory, SowingPeriodFactory
 
     from domain.models.crop import Crop
 
@@ -98,7 +97,7 @@ async def test_find_one_success(
 async def test_find_many_without_filters_empty_items_less_than_limit_success(
     in_memory_repository,
 ):
-    paginated_crops = await in_memory_repository.find_many(
+    paginated_crops = await in_memory_repository.find_many_cursor_paginated(
         filters=CropSearchCriteria()
     )
 
@@ -115,7 +114,7 @@ async def test_find_many_without_filters_items_less_than_limit_success(
     for crop in crop_factory.build_batch(size=n_items):
         await in_memory_repository.save(crop)
 
-    paginated_crops = await in_memory_repository.find_many(
+    paginated_crops = await in_memory_repository.find_many_cursor_paginated(
         filters=CropSearchCriteria(),
         limit=n_items,
     )
@@ -134,7 +133,7 @@ async def test_find_many_without_filters_items_more_than_limit_success(
         await in_memory_repository.save(crop)
 
     limit = 10
-    paginated_crops = await in_memory_repository.find_many(
+    paginated_crops = await in_memory_repository.find_many_cursor_paginated(
         filters=CropSearchCriteria(),
         limit=limit,
     )
@@ -152,12 +151,14 @@ async def test_find_many_without_filters_cursor_success(
         await in_memory_repository.save(crop=crop)
 
     # We just replicate the exact behavior is expected to have
-    paginated_crops_first_page = await in_memory_repository.find_many(
-        filters=CropSearchCriteria(),
-        limit=1,
-        cursor=None,
+    paginated_crops_first_page = (
+        await in_memory_repository.find_many_cursor_paginated(
+            filters=CropSearchCriteria(),
+            limit=1,
+            cursor=None,
+        )
     )
-    paginated_crops = await in_memory_repository.find_many(
+    paginated_crops = await in_memory_repository.find_many_cursor_paginated(
         filters=CropSearchCriteria(),
         limit=10,
         cursor=paginated_crops_first_page.next_cursor,
@@ -171,6 +172,7 @@ async def test_find_many_without_filters_cursor_success(
 async def test_find_many_with_filters_success(
     in_memory_repository,
     crop_factory: type[CropFactory],
+    sowing_period_factory: type[SowingPeriodFactory],
     faker: Faker,
 ):
     # We create random entries to ensure none of them are returned
@@ -179,21 +181,16 @@ async def test_find_many_with_filters_success(
         await in_memory_repository.save(crop=crop)
 
     owner_id = faker.uuid4(cast_to=str)
+    sowing_season_start, sowing_season_end = sowing_period_factory.build_batch(
+        size=2
+    )
     crop: Crop = crop_factory.build(
         name='Green Basil',
         species='Ocimum basilicum',
         description='Basil (Ocimum basilicum), also called great basil, is a culinary herb...',
-        notes='Needs water.',
-        planted_at=datetime.datetime(
-            year=1998,
-            month=7,
-            day=14,
-            hour=8,
-            minute=32,
-            second=0,
-            microsecond=0,
-            tzinfo=datetime.UTC,
-        ),
+        notes='Needs plenty of water.',
+        sowing_season_start=sowing_season_start,
+        sowing_season_end=sowing_season_end,
         owner_id=owner_id,
     )
     await in_memory_repository.save(crop=crop)
@@ -203,19 +200,13 @@ async def test_find_many_with_filters_success(
         name='basil',
         species='basilicum',
         description='also called great basil',
-        notes='needs water',
-        planted_at=datetime.datetime(
-            year=1998,
-            month=7,
-            day=14,
-            hour=12,
-            minute=0,
-            tzinfo=datetime.UTC,
-        ),
+        notes='needs plenty of water',
+        sowing_season_start=sowing_season_start,
+        sowing_season_end=sowing_season_end,
         owner_id=owner_id,
     )
 
-    paginated_crops = await in_memory_repository.find_many(
+    paginated_crops = await in_memory_repository.find_many_cursor_paginated(
         filters=criteria,
         limit=10,
         cursor=None,

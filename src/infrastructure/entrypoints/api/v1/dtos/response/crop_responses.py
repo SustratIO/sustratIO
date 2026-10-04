@@ -1,7 +1,6 @@
-import datetime
-
 from pydantic import BaseModel, Field
 
+from infrastructure.entrypoints.api.v1.dtos.common.crop import SowingPeriodDTO
 from infrastructure.entrypoints.api.v1.dtos.common.mixins.audit import (
     AuditTimestampMixin,
     UniqueIdentifier,
@@ -29,8 +28,13 @@ class SingleCropResponse(BaseModel, UniqueIdentifier, AuditTimestampMixin):
     )
     notes: str | None = Field(
         description='Any additional notes you might attach to the crop.',
-        examples=['Needs water.'],
+        examples=['Needs plenty of water.'],
     )
-    planted_at: datetime.datetime = Field(
-        description='Timestamp when planted.',
+    sowing_season_start: SowingPeriodDTO | None = Field(
+        default=None,
+        description='Starting sowing season.',
+    )
+    sowing_season_end: SowingPeriodDTO | None = Field(
+        default=None,
+        description='Ending sowing season.',
     )

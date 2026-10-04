@@ -83,7 +83,10 @@ class UpdateCropUseCase:
             species=input_data.species or crop.species,
             description=input_data.description or crop.description,
             notes=input_data.notes or crop.notes,
-            planted_at=input_data.planted_at or crop.planted_at,
+            sowing_season_start=input_data.sowing_season_start
+            or crop.sowing_season_start,
+            sowing_season_end=input_data.sowing_season_end
+            or crop.sowing_season_end,
             owner_id=crop.owner_id,
         )
         updated_crop = await self.repo.save(crop=to_update_crop)

@@ -14,7 +14,7 @@ from domain.exceptions.validation import (
 
 
 @dataclass(kw_only=True)
-class UniqueIdentifier:
+class UniqueIdentifierMixin:
     """
     Adds a unique identified based on :class:`uuid.UUID` to the model.
 

@@ -34,3 +34,23 @@ class TimestampWithoutTimezoneError(ValidationError):
 
     def __init__(self, field_name: str):
         super().__init__(f"Field '{field_name}' doesn't have timezone.")
+
+
+class OutOfBoundsError(ValidationError):
+    """Raised when a coordinate is out of valid geographical bounds."""
+
+    def __init__(self, field_name: str, value: str):
+        """
+        Initialize the OutOfBoundsError.
+
+        :param field_name: The name of the field that has an out-of-bounds
+                           value.
+        :type field_name: str
+        :param value: String representation of the out-of-bounds value so it
+                      can support Decimal and other types.
+        :type value: str
+        """
+
+        super().__init__(
+            f"Field '{field_name}' has an out-of-bounds value: {value}."
+        )

@@ -1,6 +1,6 @@
-import datetime
-
 from pydantic import BaseModel, Field
+
+from infrastructure.entrypoints.api.v1.dtos.common.crop import SowingPeriodDTO
 
 
 class CreateCropRequest(BaseModel):
@@ -21,16 +21,24 @@ class CreateCropRequest(BaseModel):
         default=None,
         description='Description for the crop if needed.',
         examples=[
-            'Basil (Ocimum basilicum), also called great basil, is a culinary herb...'
+            (
+                'Basil (Ocimum basilicum), also called great basil, is a '
+                'culinary herb...'
+            )
         ],
+    )
+    sowing_season_start: SowingPeriodDTO | None = Field(
+        default=None,
+        description='Starting sowing season.',
+    )
+    sowing_season_end: SowingPeriodDTO | None = Field(
+        default=None,
+        description='Ending sowing season.',
     )
     notes: str | None = Field(
         default=None,
         description='Any additional notes you might attach to the crop.',
-        examples=['Needs water.'],
-    )
-    planted_at: datetime.datetime = Field(
-        description='Timestamp when planted.',
+        examples=['Needs plenty of water.'],
     )
 
 
@@ -53,17 +61,24 @@ class UpdateCropRequest(BaseModel):
         default=None,
         description='Description for the crop if needed.',
         examples=[
-            'Basil (Ocimum basilicum), also called great basil, is a culinary herb...'
+            (
+                'Basil (Ocimum basilicum), also called great basil, is a '
+                'culinary herb...'
+            )
         ],
     )
     notes: str | None = Field(
         default=None,
         description='Any additional notes you might attach to the crop.',
-        examples=['Needs water.'],
+        examples=['Needs plenty of water.'],
     )
-    planted_at: datetime.datetime | None = Field(
+    sowing_season_start: SowingPeriodDTO | None = Field(
         default=None,
-        description='Timestamp when planted.',
+        description='Starting sowing season.',
+    )
+    sowing_season_end: SowingPeriodDTO | None = Field(
+        default=None,
+        description='Ending sowing season.',
     )
 
 
@@ -96,9 +111,11 @@ class CropSearchQueryParams(BaseModel):
         default=None,
         description='Notes associated to this crop. Case insensitive.',
     )
-    planted_at: datetime.datetime | None = Field(
+    sowing_season_start: SowingPeriodDTO | None = Field(
         default=None,
-        description=(
-            'Timestamp when planted. It searches within 12 hours of this.'
-        ),
+        description='Starting sowing season.',
+    )
+    sowing_season_end: SowingPeriodDTO | None = Field(
+        default=None,
+        description='Ending sowing season.',
     )

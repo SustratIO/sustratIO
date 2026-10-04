@@ -1,8 +1,6 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    import datetime
+from domain.models.crop import SowingPeriod
 
 
 @dataclass(
@@ -21,15 +19,18 @@ class CreateCropInput:
     :type description: str | None
     :param notes: Notes associated to this crop.
     :type notes: str | None
-    :param planted_at: Timestamp when planted.
-    :type planted_at: :class:`datetime.datetime`
+    :param sowing_season_start: Start of the sowing season.
+    :type sowing_season_start: :class:`SowingPeriod` | None
+    :param sowing_season_end: End of the sowing season.
+    :type sowing_season_end: :class:`SowingPeriod` | None
     """
 
     name: str
     species: str | None = None
     description: str | None = None
     notes: str | None = None
-    planted_at: datetime.datetime
+    sowing_season_start: SowingPeriod | None = None
+    sowing_season_end: SowingPeriod | None = None
 
 
 @dataclass(
@@ -48,12 +49,15 @@ class UpdateCropInput:
     :type description: str | None
     :param notes: Notes associated to this crop.
     :type notes: str | None
-    :param planted_at: Timestamp when planted.
-    :type planted_at: :class:`datetime.datetime` | None
+    :param sowing_season_start: Start of the sowing season.
+    :type sowing_season_start: :class:`SowingPeriod` | None
+    :param sowing_season_end: End of the sowing season.
+    :type sowing_season_end: :class:`SowingPeriod` | None
     """
 
     name: str | None = None
     species: str | None = None
     description: str | None = None
     notes: str | None = None
-    planted_at: datetime.datetime | None = None
+    sowing_season_start: SowingPeriod | None = None
+    sowing_season_end: SowingPeriod | None = None
