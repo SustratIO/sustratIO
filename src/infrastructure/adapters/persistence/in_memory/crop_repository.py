@@ -41,7 +41,7 @@ class InMemoryCropRepository(CropRepositoryPort):
     async def find_one(self, identifier: uuid.UUID) -> Crop | None:
         return self._storage.get(identifier, None)
 
-    async def find_many(
+    async def find_many_cursor_paginated(
         self,
         filters: CropSearchCriteria,
         limit: int = 100,

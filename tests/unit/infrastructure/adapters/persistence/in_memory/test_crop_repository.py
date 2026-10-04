@@ -97,7 +97,7 @@ async def test_find_one_success(
 async def test_find_many_without_filters_empty_items_less_than_limit_success(
     in_memory_repository,
 ):
-    paginated_crops = await in_memory_repository.find_many(
+    paginated_crops = await in_memory_repository.find_many_cursor_paginated(
         filters=CropSearchCriteria()
     )
 
@@ -114,7 +114,7 @@ async def test_find_many_without_filters_items_less_than_limit_success(
     for crop in crop_factory.build_batch(size=n_items):
         await in_memory_repository.save(crop)
 
-    paginated_crops = await in_memory_repository.find_many(
+    paginated_crops = await in_memory_repository.find_many_cursor_paginated(
         filters=CropSearchCriteria(),
         limit=n_items,
     )
@@ -133,7 +133,7 @@ async def test_find_many_without_filters_items_more_than_limit_success(
         await in_memory_repository.save(crop)
 
     limit = 10
-    paginated_crops = await in_memory_repository.find_many(
+    paginated_crops = await in_memory_repository.find_many_cursor_paginated(
         filters=CropSearchCriteria(),
         limit=limit,
     )
@@ -151,12 +151,14 @@ async def test_find_many_without_filters_cursor_success(
         await in_memory_repository.save(crop=crop)
 
     # We just replicate the exact behavior is expected to have
-    paginated_crops_first_page = await in_memory_repository.find_many(
-        filters=CropSearchCriteria(),
-        limit=1,
-        cursor=None,
+    paginated_crops_first_page = (
+        await in_memory_repository.find_many_cursor_paginated(
+            filters=CropSearchCriteria(),
+            limit=1,
+            cursor=None,
+        )
     )
-    paginated_crops = await in_memory_repository.find_many(
+    paginated_crops = await in_memory_repository.find_many_cursor_paginated(
         filters=CropSearchCriteria(),
         limit=10,
         cursor=paginated_crops_first_page.next_cursor,
@@ -204,7 +206,7 @@ async def test_find_many_with_filters_success(
         owner_id=owner_id,
     )
 
-    paginated_crops = await in_memory_repository.find_many(
+    paginated_crops = await in_memory_repository.find_many_cursor_paginated(
         filters=criteria,
         limit=10,
         cursor=None,

@@ -96,7 +96,7 @@ class Crop(UniqueIdentifierMixin, AuditTimestampMixin):
 @dataclass(kw_only=True)
 class CropSearchCriteria:
     """
-    Filter parameters for querying :class:`Crop` entities.
+    Represents criteria for searching :class:`Crop` entities.
 
     :param name: Common crop name. Case insensitive.
     :type name: str | None
@@ -125,6 +125,7 @@ class CropSearchCriteria:
     owner_id: str | None = None
 
     def __post_init__(self):
+        # Criteria is fuzzy, so string are lowercase
         if self.name:
             self.name = self.name.lower()
         if self.species:

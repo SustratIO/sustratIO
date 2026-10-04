@@ -45,7 +45,7 @@ class CropRepositoryPort(Protocol):
         """
         ...
 
-    async def find_many(
+    async def find_many_cursor_paginated(
         self,
         filters: CropSearchCriteria,
         limit: int = 100,
@@ -59,6 +59,6 @@ class CropRepositoryPort(Protocol):
         :param limit: Number of crops to return.
         :type limit: int
         :return: List of crops under cursor pagination.
-        :rtype: :class:`CursorPage`
+        :rtype: CursorPage[Crop]
         """
         ...

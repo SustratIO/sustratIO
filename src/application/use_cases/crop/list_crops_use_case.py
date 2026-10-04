@@ -48,7 +48,7 @@ class ListCropsUseCase:
         # Enforce that the user can only query their own crops
         criteria.owner_id = user.id
 
-        crops = await self.repo.find_many(
+        crops = await self.repo.find_many_cursor_paginated(
             filters=criteria,
             limit=limit,
             cursor=cursor,
