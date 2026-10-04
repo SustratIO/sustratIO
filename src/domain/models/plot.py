@@ -73,6 +73,34 @@ class Plot(UniqueIdentifierMixin, AuditTimestampMixin):
     owner_id: str
 
 
+@dataclass(kw_only=True)
+class PlotSearchCriteria:
+    """
+    Represents criteria for searching :class:`Plot` entities.
+
+    :name: The name of the plot to search for.
+    :type name: str | None
+    :description: The description of the plot to search for.
+    :type description: str | None
+    :coordinate: The geographical coordinate of the plot to search for.
+    :type coordinate: :class:`Coordinate` | None
+    :owner_id: The user ID of the plot to search for.
+    :type owner_id: str | None
+    """
+
+    name: str | None = None
+    description: str | None = None
+    coordinate: Coordinate | None = None
+    owner_id: str | None = None
+
+    def __pos_init__(self):
+        # Criteria is fuzzy, so string are lowercase
+        if self.name:
+            self.name = self.name.lower()
+        if self.description:
+            self.description = self.description.lower()
+
+
 @dataclass
 class PlotAssignment(UniqueIdentifierMixin, AuditTimestampMixin):
     """
